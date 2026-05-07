@@ -1,0 +1,29 @@
+{
+  "name": "@vibecoswaga/cli",
+  "version": "0.1.0",
+  "description": "CLI для VibecoSwaga template — init проектов и подключение разработчиков",
+  "type": "module",
+  "bin": {
+    "vibeco": "./bin/vibeco.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "execa": "^9.5.0",
+    "kleur": "^4.1.5",
+    "prompts": "^2.4.2"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timderbak/VibecoSwagaPlatform.git",
+    "directory": "cli"
+  }
+}

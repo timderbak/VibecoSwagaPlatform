@@ -1,0 +1,32 @@
+# Я — Dev #<N> (<Имя>)
+
+> Этот файл генерируется скриптом `./scripts/claim-developer.sh N <name>` и попадает в `.gitignore`.
+> Не редактировать руками — перезапусти скрипт, чтобы обновить.
+
+## Мои слайсы (READ + WRITE)
+- backend/app/<my-slice>/**
+- frontend/app/<my-slice>/**
+- backend/tests/<my-slice>/**
+- frontend/__tests__/<my-slice>/**
+
+## Общие зоны (READ-ONLY, изменения только через RFC-PR)
+- docs/contracts/**
+- backend/app/core/**
+- backend/app/schemas/**
+- frontend/components/ui/**
+- frontend/lib/api/**
+- docker-compose*.yml
+- .env.example
+- .github/CODEOWNERS
+
+## Чужие зоны (НЕ ТРОГАТЬ)
+- backend/app/<other-slice-1>/**     ← Dev #<X> (<Name>)
+- backend/app/<other-slice-2>/**     ← Dev #<Y> (<Name>)
+- frontend/app/<other-slice-1>/**    ← Dev #<X> (<Name>)
+- frontend/app/<other-slice-2>/**    ← Dev #<Y> (<Name>)
+
+## Моя ветка
+dev/<N>/<my-slice>
+
+## Контакт для cross-zone запросов
+GitHub: @<my-handle>

@@ -1,0 +1,21 @@
+# CODEOWNERS — генерируется автоматически на шаге /decompose из docs/plan.md.
+# Этот шаблон-файл — заглушка, перезаписывается реальным распределением.
+#
+# Пример формата (после /decompose):
+#
+# # Dev #1
+# /backend/app/projects/   @user1
+# /frontend/app/projects/  @user1
+#
+# # Dev #2
+# /backend/app/billing/    @user2
+# /frontend/app/billing/   @user2
+#
+# # Общая зона — нужен аппрув всех
+# /backend/app/core/        @user1 @user2 @user3
+# /backend/app/schemas/     @user1 @user2 @user3
+# /frontend/components/ui/  @user1 @user2 @user3
+# /frontend/lib/api/        @user1 @user2 @user3
+# /docker-compose*.yml      @user1 @user2 @user3
+# /.env.example             @user1 @user2 @user3
+# /.github/CODEOWNERS       @user1 @user2 @user3

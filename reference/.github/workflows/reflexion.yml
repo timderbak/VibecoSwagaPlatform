@@ -1,0 +1,36 @@
+name: Reflexion
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  reflect:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'feat:')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install vibeco
+        run: npm i -g @vibecoswaga/cli
+
+      - name: Run reflexion
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: vibeco reflect "$GITHUB_SHA"

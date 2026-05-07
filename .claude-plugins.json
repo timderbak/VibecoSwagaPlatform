@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.anthropic.com/claude-code/plugins.json",
+  "description": "Plugins required for VibecoSwaga workflow. vibeco init / join installs these automatically. If automatic install fails, see docs/onboarding/install.md.",
+  "plugins": [
+    {
+      "name": "superpowers",
+      "required": true,
+      "purpose": "Brainstorming, writing-plans, executing-plans, TDD, debugging, verification, dispatching-parallel-agents"
+    },
+    {
+      "name": "claude-mem",
+      "required": true,
+      "purpose": "Memory between sessions"
+    },
+    {
+      "name": "context7",
+      "required": true,
+      "purpose": "Up-to-date library docs (used in §5 stop-rule)"
+    },
+    {
+      "name": "reflexion",
+      "required": true,
+      "purpose": "Critique after large features (§8)"
+    },
+    {
+      "name": "github",
+      "required": true,
+      "purpose": "Auto-pilot git/gh operations (§16)"
+    }
+  ]
+}
