@@ -40,17 +40,19 @@ Pydantic-модель в `backend/app/schemas/<slice>.py`. Из неё:
 
 ## Чужая зона
 
-Слайс другого разработчика. Указан в `DEVELOPER.local.md` как «Чужие зоны». Туда ты **не пишешь**. Если очень нужно — `vibeco request-cross-zone`.
+Слайс другого разработчика. Указан в `DEVELOPER.local.md` как «Чужие зоны». Туда ты **не пишешь**. Если очень нужно — попроси Claude «запроси у <имя> <что>» (он создаст GitHub-issue).
 
 ## Cross-zone request
 
 Просьба к овнеру чужой зоны внести изменение, нужное для твоей фичи.
 
-```bash
-vibeco request-cross-zone backend/app/auth/models/user.py "+ is_billable: bool"
-```
+Скажи Claude:
+> «запроси у Стаса добавить is_billable: bool в backend/app/auth/models/user.py»
 
-Создаётся GitHub-issue с тегом `cross-zone-request`, ассайнится овнеру.
+Claude найдёт овнера через `.github/CODEOWNERS` и создаст:
+```bash
+gh issue create --title "[cross-zone] ..." --label cross-zone-request --assignee <owner>
+```
 
 ## RFC-PR
 
@@ -67,7 +69,7 @@ Pull Request, изменяющий **только** общую зону (кон�
 - Чужие зоны (NO-GO)
 - Моя ветка
 
-Генерируется `./scripts/claim-developer.sh N name` или `vibeco join`.
+Генерируется `./scripts/claim-developer.sh N name` (запускается onboarding-агентом Claude автоматически).
 
 ## Pre-commit hook
 

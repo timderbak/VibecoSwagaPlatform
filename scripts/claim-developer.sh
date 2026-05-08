@@ -4,6 +4,8 @@
 # Usage:
 #   ./scripts/claim-developer.sh 2 vlad
 #
+# Запускается onboarding-агентом Claude после ответа «я <N>-й разработчик».
+#
 # Что делает:
 #   1. Парсит docs/plan.md, находит Dev #N и его слайсы
 #   2. Генерит DEVELOPER.local.md (в .gitignore)
@@ -23,7 +25,7 @@ if [ ! -f docs/plan.md ]; then
   exit 1
 fi
 
-# Парсим plan.md — это упрощённый парсер, в реальности vibeco CLI сделает лучше
+# Парсим plan.md упрощённым awk; для нестандартных форматов проще попросить Claude обновить вручную
 SLICES=$(awk -v n="### Dev #$DEV_N" '
   $0 ~ n { found=1; next }
   found && /^### Dev #/ { exit }
@@ -116,4 +118,4 @@ echo ""
 echo "Готово. Ты Dev #$DEV_N ($DEV_NAME)."
 echo "Слайс: $PRIMARY_SLICE"
 echo "Ветка: $BRANCH"
-echo "Запусти 'claude' и скажи 'погнали'."
+echo "Скажи Claude 'погнали' чтобы продолжить."

@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.anthropic.com/claude-code/plugins.json",
-  "description": "Plugins required for VibecoSwaga workflow. vibeco init / join installs these automatically. If automatic install fails, see docs/onboarding/install.md.",
+  "description": "Plugins required for VibecoSwaga workflow. Onboarding agent prompts to install missing ones at first session. If automatic install fails, see docs/onboarding/install.md.",
   "plugins": [
     {
       "name": "superpowers",

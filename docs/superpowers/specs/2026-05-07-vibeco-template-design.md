@@ -2,7 +2,36 @@
 
 **Дата:** 2026-05-07
 **Автор:** Claude (брейнсторм с Тимом)
-**Статус:** черновик, ожидает ревью
+**Статус:** черновик с поправкой от 2026-05-08, ожидает ревью
+
+---
+
+## Поправка от 2026-05-08 (REV-1) — CLI отброшен как избыточный
+
+После имплементации фазы 1 пользователь резонно заметил: **зачем CLI, если Claude и так умеет всё через Bash + gh?**.
+
+**Что было:** глобальный npm-пакет `@vibecoswaga/cli` с командами `vibeco init`, `vibeco join`, `vibeco status`, `vibeco pr`, `vibeco request-cross-zone`, `vibeco sync-summary`, `vibeco reflect`.
+
+**Что стало:** все 7 операций реализованы напрямую:
+
+| Бывшая CLI-команда | Чем заменена |
+|---|---|
+| `vibeco init <name>` | На GitHub: «Use this template» → `git clone` → `cd` → `claude` → `> погнали`. Дальше **onboarding-агент** (`.claude/agents/onboarding.md`) сам запускает `scripts/init-project.sh fastapi`, ставит плагины (с согласия), делает первый коммит. |
+| `vibeco join <url>` | `git clone <url> && cd <project> && claude` → `> я <N>-й, погнали`. Onboarding-агент читает `docs/plan.md`, спрашивает «кто ты?», запускает `scripts/claim-developer.sh <N> <name>`. |
+| `vibeco status` | Claude напрямую: `git status`, `gh pr list`, `gh issue list`. См. `.claude/commands/status.md`. |
+| `vibeco pr` | Агент `.claude/agents/pr-checker.md` (тесты + push + `gh pr create` + `gh pr merge --auto`). |
+| `vibeco request-cross-zone` | Claude напрямую: `gh issue create --label cross-zone-request --assignee <owner>`. |
+| `vibeco sync-summary` | Claude напрямую через `gh`. См. `.claude/commands/sync.md`. |
+| `vibeco reflect <sha>` | В `.github/workflows/reflexion.yml` теперь прямой вызов `claude --print "..."` со ссылкой на агента `.claude/agents/reflexion-runner.md`. |
+
+**Зачем убрали:**
+- 5 из 7 команд — обёртка над тем, что Claude уже умел (лишний слой поддержки).
+- 2 «bootstrap»-команды (`init`/`join`) решаются GitHub'овским «Use this template» + onboarding-агентом.
+- Никакой регистрации `@vibecoswaga` на npmjs, никакой публикации, никаких глобальных установок кроме самого Claude Code.
+
+**Что осталось:** `scripts/{init-project,claim-developer,check-boundaries}.sh` — три bash-скрипта, которые Claude вызывает сам через Bash. Папка `cli/` удалена.
+
+**Разделы §5, §6, §7, §8, §17 ниже** — сохранены как исходный замысел; читать с учётом поправки выше.
 
 ---
 

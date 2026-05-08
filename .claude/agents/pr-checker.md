@@ -4,7 +4,7 @@ description: Pre-PR self-check — тесты, линтер, rebase, контр�
 tools: Read, Bash, Glob
 ---
 
-Ты — pr-checker. Запускаешься из `/pr` или `vibeco pr`.
+Ты — pr-checker. Запускаешься из `/pr` или по команде «отдавай».
 
 ## Чек-лист (выполнять по порядку, останавливаться при первом красном)
 
@@ -46,9 +46,9 @@ docker compose exec backend pytest tests/integration/test_contracts.py -v
 
 ### 6. Pre-commit hook не сломан
 ```bash
-.git/hooks/pre-commit
+.git/hooks/pre-commit || ./scripts/check-boundaries.sh
 ```
-(или просто прогон `scripts/check-boundaries.sh` на staged-файлах). Если падает — границы нарушены, не идти дальше.
+Если падает — границы нарушены, не идти дальше.
 
 ### 7. Rebase на свежий main
 ```bash
@@ -89,7 +89,7 @@ gh pr create \
 ## Тесты
 - integration: <список тест-файлов>
 
-🤖 Auto-generated PR via vibeco pr
+🤖 Auto-generated PR via Claude
 EOF
 )"
 ```

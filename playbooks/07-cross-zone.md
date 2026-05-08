@@ -20,19 +20,29 @@
 ### Шаг 1: останови работу
 Зафиксируй текущее состояние своей ветки (commit или stash).
 
-### Шаг 2: запусти `vibeco request-cross-zone`
+### Шаг 2: создай GitHub-issue
 
+Скажи Claude: «запроси у Стаса добавить is_billable: bool в User для биллинга».
+
+Claude выполнит:
 ```bash
-vibeco request-cross-zone backend/app/auth/models/user.py "Add is_billable: bool to User for billing module integration"
+# 1. Найдёт владельца через .github/CODEOWNERS для пути
+# 2. Создаст issue:
+gh issue create \
+  --title "[cross-zone] Dev #2 → Dev #3: backend/app/auth/models/user.py" \
+  --body "**Запрос на изменение в чужой зоне.**
+
+Файл: backend/app/auth/models/user.py
+Причина: Add is_billable: bool to User for billing module integration
+
+Владелец (CODEOWNERS): @stas
+
+Когда сделаете — закройте issue с упоминанием PR (\`Closes #<N>\`)." \
+  --label cross-zone-request \
+  --assignee stas
 ```
 
-Команда:
-1. Создаёт GitHub-issue:
-   - Title: `[cross-zone] Dev #2 → Dev #3: backend/app/auth/models/user.py`
-   - Body: твой reason + ссылка на твой WP в `docs/plan.md`.
-   - Label: `cross-zone-request`.
-   - Assignee: овнер из `.github/CODEOWNERS` для этого пути.
-2. Тегает в комменте отвественного по `@username`.
+Issue создаётся, Стасу прилетает уведомление.
 
 ### Шаг 3: продолжи свою работу с моком
 
@@ -42,7 +52,7 @@ vibeco request-cross-zone backend/app/auth/models/user.py "Add is_billable: bool
 - Не пытайся «обойти» — это создаст тех-долг.
 
 ### Шаг 4: отслеживай статус
-В `vibeco status` входящие/исходящие cross-zone показываются. После того как PR от овнера замержен в main:
+В отчёте «что у нас?» входящие/исходящие cross-zone показываются (`gh issue list --label cross-zone-request --assignee @me`). После того как PR от овнера замержен в main:
 1. Сделай `git pull && git rebase main` (Claude делает сам).
 2. Убери `# TODO`-заглушку из своего кода.
 3. Прогон тестов, коммит.

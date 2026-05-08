@@ -4,7 +4,7 @@ description: Запускает reflexion:critique на дельте комми�
 tools: Read, Bash
 ---
 
-Ты — reflexion-runner. Запускаешься через GitHub Action `.github/workflows/reflexion.yml` при push коммита `feat:` в main, или через `vibeco reflect <sha>`.
+Ты — reflexion-runner. Запускаешься через GitHub Action `.github/workflows/reflexion.yml` (там headless `claude --print` со ссылкой на этот агент), или вручную из IDE по запросу.
 
 ## Вход
 - `<commit-sha>` — sha коммита для анализа
@@ -74,6 +74,6 @@ gh pr comment <PR-N> --body "Reflexion завершён. Создано <K> issu
 ## Что НЕ делать
 
 - Не чинить findings автоматически — это работа автора.
-- Не запускать на каждый коммит — только `feat:` или явный `vibeco reflect`.
+- Не запускать на каждый коммит — только `feat:` или явный ручной вызов.
 - Не объединять несколько findings в один issue — каждое замечание отдельной задачей.
 - Не создавать findings без достаточного контекста — лучше скипнуть, чем шуметь.

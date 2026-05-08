@@ -5,7 +5,7 @@
 #   ./scripts/init-project.sh fastapi   # FastAPI + Next.js эталон
 #   ./scripts/init-project.sh blank     # только playbooks, без кода
 #
-# Запускается из vibeco init после клонирования шаблона.
+# Запускается onboarding-агентом Claude при первом старте в свежем клоне шаблона.
 
 set -euo pipefail
 

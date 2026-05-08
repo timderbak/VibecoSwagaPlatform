@@ -5,13 +5,14 @@
 ## Когда запускается
 
 ### Автоматически
-GitHub Action `.github/workflows/reflexion.yml` на push в `main`:
+GitHub Action `.github/workflows/reflexion.yml` на push в `main` (внутри Action запускается `claude --print` со skill `reflexion:critique`):
 - Если коммит содержит `feat:` в заголовке.
 - Если изменено > 5 файлов в одном слайсе (heuristic «крупная фича»).
 
 ### Вручную
+Запусти агента `.claude/agents/reflexion-runner.md` с указанием sha коммита, либо в headless:
 ```bash
-vibeco reflect <commit-sha>
+claude --print "Запусти skill reflexion:critique на коммите <commit-sha> (см. .claude/agents/reflexion-runner.md)"
 ```
 
 ## Что делает Reflexion

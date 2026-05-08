@@ -68,7 +68,7 @@
 ### Общие правила
 - Тесты пишутся **вместе с кодом**, не после. Без теста — фича не готова.
 - TDD цикл: RED → GREEN → REFACTOR → COMMIT.
-- `vibeco pr` блокирует PR при отсутствии integration-теста на новые эндпоинты.
+- Агент `pr-checker` блокирует PR при отсутствии integration-теста на новые эндпоинты.
 - После любой реализации — прогнать всю тестовую пачку. Красный тест = работа не завершена.
 
 ---
@@ -231,16 +231,16 @@ Reflexion **не блокирует мерж** — работает после.
 
 - **Своя зона** (`Мои слайсы`) → пиши свободно.
 - **Общая зона** (`Общие зоны (READ-ONLY)`) → НЕ пиши. Скажи: «нужен RFC-PR с аппрувом всех CODEOWNERS».
-- **Чужая зона** (`Чужие зоны`) → НЕ пиши. Скажи: «это зона Dev #N, запускаю `vibeco request-cross-zone`».
+- **Чужая зона** (`Чужие зоны`) → НЕ пиши. Скажи: «это зона Dev #N, создаю cross-zone-issue» (через `gh issue create --label cross-zone-request --assignee <owner>`).
 
 ### Если `DEVELOPER.local.md` отсутствует
-Не начинай работу. Скажи: «Запусти `./scripts/claim-developer.sh N <name>` или `vibeco join`».
+Не начинай работу. Запусти onboarding-агента (`.claude/agents/onboarding.md`) — он спросит у пользователя, кто из Dev #N, и сам выполнит `./scripts/claim-developer.sh <N> <name>`.
 
 ### Pre-commit hook
 `scripts/check-boundaries.sh` валит коммит при попытке записи в чужую зону. **Не пытайся обойти `--no-verify`** — это запрещено §12.
 
 ### Cross-zone запрос
-Если для своей фичи нужно что-то в чужой зоне — `vibeco request-cross-zone <path> <reason>`. Это создаёт GitHub-issue с тегом ответственного. Жди, не делай сам.
+Если для своей фичи нужно что-то в чужой зоне — попроси Claude «запроси у <имя_овнера> <что>». Claude создаст GitHub-issue (`gh issue create --label cross-zone-request --assignee <owner>`). Жди, не делай сам.
 
 ---
 
@@ -250,23 +250,23 @@ Reflexion **не блокирует мерж** — работает после.
 
 ### Словарь команд
 
-| Фраза человека | Действие |
+| Фраза человека | Действие (Claude выполняет напрямую через Bash/gh) |
 |---|---|
-| `что у нас?` | `vibeco status` + сводный отчёт: ветка, незакоммиченные, открытые PR'ы, входящие cross-zone, reflexion findings |
+| `что у нас?` | Сводный отчёт: `git status -sb`, `gh pr list --author @me --state open`, `gh issue list --label cross-zone-request --assignee @me`, `gh issue list --label reflexion-finding --assignee @me`, текущий WP из `docs/plan.md` |
 | `продолжаем` | Следующий WP из `docs/plan.md` через TDD цикл |
-| `отдавай` | `vibeco pr` (pre-check + push + create + auto-merge) |
+| `отдавай` | Запуск агента `pr-checker`: pre-PR check → `git push` → `gh pr create` → `gh pr merge --auto --squash` |
 | `аппрув N` | `gh pr review --approve <N>` |
 | `стоп` | Прерви текущее действие, отчитайся |
 | `откати последний` | `git revert HEAD` (БЕЗ force) |
-| `запроси у <имя> <что>` | `vibeco request-cross-zone <path> <reason>` |
-| `синк-апдейт` | `vibeco sync-summary` (агрегат для созвона) |
+| `запроси у <имя> <что>` | `gh issue create --title "[cross-zone] ..." --label cross-zone-request --assignee <owner>` (см. `playbooks/07-cross-zone.md`) |
+| `синк-апдейт` | Агрегат через `gh` для еженедельного созвона (см. `.claude/commands/sync.md`) |
 
 ### Что Claude делает автоматически (без спроса)
 
 - `git pull && git rebase main` — на старте сессии и перед PR.
 - `git add && git commit` — после успешных тестов.
 - `git push` — после каждого коммита в свою ветку.
-- `gh pr create` + `gh pr merge --auto --squash` — на «отдавай» или после завершения WP.
+- `gh pr create` + `gh pr merge --auto --squash` — на «отдавай» или после завершения WP. Использовать агента `.claude/agents/pr-checker.md`.
 - Прогон тестов в Docker.
 - Фикс CI-фейла — ≤3 попытки, потом stop-rule (§5).
 - `Reflexion:critique` после мержа крупной фичи (через GitHub Action).

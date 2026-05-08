@@ -26,11 +26,12 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install vibeco
-        run: npm i -g @vibecoswaga/cli
+      - name: Install Claude Code
+        run: npm i -g @anthropic-ai/claude-code
 
       - name: Run reflexion
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: vibeco reflect "$GITHUB_SHA"
+        run: |
+          claude --print "Запусти skill reflexion:critique на коммите $GITHUB_SHA. Используй агента .claude/agents/reflexion-runner.md. Создай GitHub issues для критичных и major findings (label reflexion-finding, ассайн на автора коммита)."

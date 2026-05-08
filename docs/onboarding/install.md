@@ -1,21 +1,21 @@
-# Установка плагинов и инструментов вручную
+# Установка инструментов
 
-Если `vibeco init` не смог автоматически поставить какой-то плагин — вот как руками.
+Если что-то не работает после клона шаблона — проверь, что у тебя стоит всё нужное.
 
 ## Prerequisites
 
-Проверь, что у тебя установлено:
+Проверь:
 
 ```bash
-node --version    # >= 20
-docker --version  # >= 24
-gh --version      # >= 2.40
 git --version     # >= 2.40
+gh --version      # >= 2.40
+docker --version  # >= 24
+node --version    # >= 20 (нужен для frontend и Claude Code)
 ```
 
 ### Если чего-то нет
 
-- **Node.js**: https://nodejs.org/ или `nvm install 20`
+- **Node.js**: https://nodejs.org/ или `nvm install 22`
 - **Docker Desktop**: https://www.docker.com/products/docker-desktop/
 - **GitHub CLI** (`gh`): `brew install gh` (macOS) / `apt install gh` (Linux)
 - **Git**: обычно уже есть; если нет — `brew install git`
@@ -26,7 +26,7 @@ git --version     # >= 2.40
 gh auth login
 ```
 
-Выбери: GitHub.com → HTTPS (или SSH) → авторизуйся через браузер.
+Выбери: GitHub.com → HTTPS (или SSH) → авторизация через браузер.
 
 ## Claude Code
 
@@ -38,15 +38,7 @@ npm i -g @anthropic-ai/claude-code
 
 ## Плагины Claude Code
 
-Список нужных — в `.claude-plugins.json`:
-
-- `superpowers` — brainstorming, writing-plans, executing-plans, TDD, debugging, verification
-- `claude-mem` — память между сессиями
-- `context7` — актуальные доки библиотек
-- `reflexion` — критика после крупных фич
-- `github` — интеграция с gh
-
-### Установка через CLI
+Список нужных — в `.claude-plugins.json`. Установить:
 
 ```bash
 claude plugin install superpowers
@@ -56,32 +48,20 @@ claude plugin install reflexion
 claude plugin install github
 ```
 
-### Установка через UI
-
+Или через UI:
 1. Запусти `claude`.
-2. Команда `/plugin marketplace browse`.
-3. Выбери плагин из списка → Install.
+2. `/plugin marketplace browse`.
+3. Выбери из списка → Install.
 
-## vibeco CLI
+Onboarding-агент шаблона **сам предложит** установить недостающие при первом запуске Claude в проекте — но если хочешь заранее, ставь руками.
 
-```bash
-npm i -g @vibecoswaga/cli
-```
+## MCP-серверы
 
-Проверка: `vibeco --version`.
-
-## MCP-серверы (опционально, но рекомендуется)
-
-Эти MCP-серверы используются плагинами выше. Обычно они подтягиваются автоматически с плагином, но если нет:
+Обычно подтягиваются с плагином. Если нет:
 
 ```bash
-# Context7
 claude mcp add context7
-
-# GitHub
 claude mcp add github
-
-# claude-mem (часть плагина)
 ```
 
 Проверка: `claude mcp list`.
@@ -94,8 +74,7 @@ git init
 claude
 ```
 
-В Claude скажи:
-
+В Claude:
 ```
 > /plugin
 ```
@@ -104,4 +83,4 @@ claude
 
 ## Ничего не помогает
 
-Открой issue в репозитории шаблона: https://github.com/<org>/VibecoSwagaTemplate/issues
+Открой issue в репозитории шаблона: https://github.com/timderbak/VibecoSwagaPlatform/issues

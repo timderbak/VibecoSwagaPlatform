@@ -13,4 +13,4 @@ description: Собрать каркас проекта со всеми stub'а�
 4. Локально: `docker compose -f docker-compose.test.yml up -d && pytest`. Должны быть зелёными.
 5. Коммит: `feat: skeleton — all stubs in place, CI green`.
 6. Push в main (через PR; auto-merge).
-7. Сказать команде: «Скелет собран. Каждый дев теперь делает `vibeco join`.»
+7. Сказать команде: «Скелет собран. Каждый дев теперь делает `git clone <repo> && cd <repo> && claude` и говорит "я <N>-й, погнали".»

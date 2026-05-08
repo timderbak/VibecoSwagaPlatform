@@ -12,7 +12,7 @@
 Действия Claude:
 1. `git fetch origin main`.
 2. Если main впереди — `git rebase origin/main`. При конфликте — см. `playbook 08-merge-conflict.md`.
-3. Прогнать `vibeco status`:
+3. Собрать сводный статус (как в `что у нас?`):
    - текущая ветка
    - незакоммиченные изменения
    - открытые PR'ы (свои)
@@ -55,7 +55,7 @@
 человек:  отдавай
 ```
 
-Действия Claude (это `vibeco pr`):
+Действия Claude (запускает агента `.claude/agents/pr-checker.md`):
 1. **Pre-PR check:**
    - все тесты зелёные в Docker
    - линтер чистый (ruff, eslint)
@@ -104,7 +104,7 @@ Claude: ... PR-#43 от Влада ждёт твоего аппрува (зат�
 человек:  синк-апдейт
 ```
 
-Действия Claude (`vibeco sync-summary`):
+Действия Claude (см. `.claude/commands/sync.md`):
 1. Собрать данные: для каждого Dev из `docs/plan.md`:
    - текущая ветка (через GitHub API)
    - последний коммит и дата

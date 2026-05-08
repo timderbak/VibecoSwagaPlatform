@@ -34,7 +34,7 @@
       "Bash(rg:*)",
       "Bash(find:*)",
       "Bash(./scripts/:*)",
-      "Bash(vibeco:*)",
+      "Bash(bash ./scripts/:*)",
       "Read(**)",
       "Write(**)",
       "Edit(**)"

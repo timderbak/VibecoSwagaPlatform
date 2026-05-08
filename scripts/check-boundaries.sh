@@ -57,9 +57,9 @@ if [ ${#VIOLATIONS[@]} -gt 0 ]; then
   done
   echo ""
   echo "   Эти файлы вне твоей зоны (см. DEVELOPER.local.md)."
-  echo "   Если действительно нужно — используй:"
-  echo "     vibeco request-cross-zone <path> <reason>"
-  echo "   и попроси овнера сделать изменение."
+  echo "   Если действительно нужно — попроси Claude:"
+  echo "     'запроси у <имя_овнера> <что>'"
+  echo "   Claude создаст GitHub-issue с тегом cross-zone-request."
   echo ""
   echo "   Если это RFC-PR общей зоны — закоммить ОТДЕЛЬНЫМ PR'ом, не миксуй с фичей."
   echo ""

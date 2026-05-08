@@ -2,21 +2,21 @@
 
 Типовые проблемы и быстрые фиксы.
 
-## `vibeco: command not found`
+## `claude: command not found`
 
 ```bash
-npm i -g @vibecoswaga/cli
+npm i -g @anthropic-ai/claude-code
 ```
 
 Если всё равно не найден — `npm config get prefix` и проверь, что `<prefix>/bin` в `$PATH`.
 
-## `vibeco init` падает на `gh: not authenticated`
+## `gh: not authenticated`
 
 ```bash
 gh auth login
 ```
 
-И повтори init.
+И повтори.
 
 ## `docker: command not found`
 
@@ -27,7 +27,7 @@ gh auth login
 Это норма — ты пытаешься тронуть чужую/общую зону. Варианты:
 
 1. **Если случайно** — откатить: `git restore <file>` для нестейджнутого, `git reset HEAD <file>` для стейджнутого.
-2. **Если намеренно (cross-zone)** — выйти из коммита, запустить `vibeco request-cross-zone <path> <reason>`.
+2. **Если намеренно (cross-zone)** — выйти из коммита, сказать Claude `запроси у <имя> <что>` (он создаст GitHub-issue с тегом cross-zone-request).
 3. **Если это RFC-PR общей зоны** — сделать **отдельный** PR только с изменением общей зоны (не миксовать с фичей).
 4. **Никогда не использовать** `--no-verify` — это запрещено CLAUDE.md §12.
 
@@ -102,4 +102,4 @@ rm .git/hooks/pre-commit
 git stash pop                # вернём изменения
 ```
 
-Если надо снести проект целиком — `cd .. && rm -rf project-folder && vibeco init project-folder`.
+Если надо снести проект целиком — `cd .. && rm -rf project-folder`, затем заново: на GitHub «Use this template» → `git clone` → `claude` → «погнали».
