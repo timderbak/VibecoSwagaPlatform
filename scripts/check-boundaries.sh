@@ -50,6 +50,11 @@ for FILE in $STAGED; do
   fi
 done
 
+# Также запускаем проверку импортов
+if [ -x "$ROOT/scripts/check-imports.sh" ]; then
+  "$ROOT/scripts/check-imports.sh" || exit 1
+fi
+
 if [ ${#VIOLATIONS[@]} -gt 0 ]; then
   echo "❌ Попытка коммита в чужую зону:"
   for F in "${VIOLATIONS[@]}"; do

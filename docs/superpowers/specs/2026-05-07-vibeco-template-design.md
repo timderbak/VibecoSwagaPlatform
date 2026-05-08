@@ -6,6 +6,50 @@
 
 ---
 
+## Поправка от 2026-05-08 (REV-3) — Foundation, shared zone, owner/readers модель
+
+После REV-2 (4-уровневая иерархия) выявилось ещё одно слабое место: на момент `module-init` каждого Dev'а у него нет **общего каркаса** — нет AppShell, дизайн-токенов, базового auth, общих UI-компонентов, общих публичных схем. Каждый Dev изобретал бы своё.
+
+**Что изменилось:**
+
+1. **Project Foundation** — отдельная фаза между `decompose` и `module-init`. Делается фаундером один раз. Включает:
+   - `backend/app/shared/` (общая зона) — публичные Pydantic Read-схемы, enum'ы, базовые типы (`PaginatedResponse`, `ErrorResponse`).
+   - `backend/app/profile/` — auth-base (login/logout, JWT middleware, `get_current_user`).
+   - `backend/app/main.py` — регистрирует роутеры всех известных модулей.
+   - Alembic + первая миграция.
+   - `frontend/components/ui/` — shadcn-style UI-kit (Button, Input, Card, EmptyState, Skeleton).
+   - `frontend/components/layout/AppShell.tsx` — общий каркас с навигацией под все модули из плана.
+   - `frontend/app/globals.css` + `tailwind.config.ts` — design tokens на CSS-переменных.
+   - `lib/utils.ts` (cn), `lib/api/client.ts` (fetch + ErrorResponse).
+   - CODEOWNERS обновлён под общую зону.
+
+2. **Owner/Readers модель для общих сущностей.** Каждая сущность в `shared/schemas.py` имеет одного owner-модуля (CRUD) и любое число reader-модулей (только read через сервис). Например, `UserRead` — owner Profile, readers все. `ProjectRead` — owner Projects, readers Finances/AI.
+
+3. **Правило импортов между модулями.** Module-private (`models.*`, `_xxx`, `api.*`) НЕ импортируется из других модулей. Разрешено только: `app.shared.*` (всегда), `app.<other>.service` (public service), `app.<other>.dependencies` (public deps), `app.core.*`. Pre-commit `scripts/check-imports.sh` валит коммит при нарушении.
+
+4. **CRUD convention** — все эндпоинты пишутся по одному шаблону (`POST/GET/list/PATCH/DELETE`, `PaginatedResponse`, `ErrorResponse`). Reference: `app/profile/api.py`, `app/projects/api.py`. Скрипт `scripts/scaffold-module.sh <module> <Entity>` генерит шаблонный модульный скелет.
+
+5. **Дизайн-конвенция** — все модули используют только токены и компоненты из `components/ui/`. Хардкоды цветов, свои Button/Input запрещены. Менять общую UI — только через RFC-PR.
+
+**Изменённые файлы:**
+- `playbooks/05-skeleton.md` → переименован в `playbooks/05-foundation.md` (расширен).
+- `playbooks/04-contracts.md` — переписан про shared/ vs module-private.
+- `.claude/agents/skeleton-generator.md` → переименован в `foundation-builder.md` (расширен).
+- `.claude/commands/skeleton.md` → переименован в `foundation.md`.
+- `CLAUDE.md §17` — расширен (общая зона, owner/readers, правила импортов, CRUD convention, design convention).
+- `reference/backend/app/` — реструктурирован: `shared/` + `profile/` + `projects/` (вместо плоских `api/`, `models/`, `schemas/`).
+- `reference/frontend/components/ui/` — добавлены Button, Input, Card, EmptyState, Skeleton (shadcn-style).
+- `reference/frontend/components/layout/AppShell.tsx` — новый.
+- `reference/frontend/app/globals.css` — design tokens на CSS-переменных.
+- `reference/frontend/tailwind.config.ts` — токены через `hsl(var(--xxx))`.
+- `reference/frontend/lib/utils.ts` — cn() helper.
+- `reference/frontend/package.json` — добавлены clsx, tailwind-merge, react-hook-form, zod.
+- `scripts/check-imports.sh` — новый pre-commit hook на запрет приватных межмодульных импортов.
+- `scripts/scaffold-module.sh` — новый генератор скелета модуля.
+- `scripts/check-boundaries.sh` — теперь дёргает check-imports.sh.
+
+---
+
 ## Поправка от 2026-05-08 (REV-2) — 4-уровневая иерархия Module→Submodule→Feature→Sub-task
 
 Изначальный дизайн имел 2 уровня: «slice → WP». Это работало для маленьких проектов, но **не масштабируется** на проекты типа платформы услуг, где у одного Dev — большой модуль с несколькими подмодулями и десятками фичей.

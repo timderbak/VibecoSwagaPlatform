@@ -1,3 +1,9 @@
+"""SQLAlchemy-модели Profile-модуля. Приватная реализация.
+
+НЕ импортировать из других модулей. Если нужно публичное представление User —
+используй `from app.shared.schemas import UserRead`.
+"""
+
 import uuid
 from datetime import datetime
 

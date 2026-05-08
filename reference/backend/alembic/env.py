@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import settings
 from app.core.db import Base
-from app.models import *  # noqa: F401,F403  (регистрируем модели в Base.metadata)
+
+# Регистрируем модели всех модулей в Base.metadata.
+# При добавлении нового модуля — импортируй здесь его models.
+from app.profile import models as _profile_models  # noqa: F401
+from app.projects import models as _projects_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

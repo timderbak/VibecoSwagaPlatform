@@ -308,23 +308,109 @@ Reflexion **не блокирует мерж** — работает после.
 
 ---
 
-## 17. Контракты — святое
+## 17. Контракты, общая зона и cross-module reads — святое
 
-`docs/contracts/` и `backend/app/schemas/` — это публичный контракт API. Меняется только через формальный процесс.
+### Что лежит в общей зоне
 
-### Когда контракт можно менять
+```
+backend/app/shared/        ← публичные Pydantic Read-схемы (UserRead, ProjectRead, ...),
+                             enum'ы (Role, ProjectStatus), общие типы (PaginatedResponse, ErrorResponse).
+                             CODEOWNERS = ВСЕ. Менять только через RFC-PR.
+backend/app/core/          ← config, db, base. CODEOWNERS = ВСЕ.
+frontend/components/ui/    ← дизайн-система: Button, Input, Card, EmptyState, Skeleton, AppShell.
+                             CODEOWNERS = ВСЕ. Все модули используют ТОЛЬКО эти компоненты.
+frontend/components/layout/ ← AppShell с навигацией. CODEOWNERS = ВСЕ.
+frontend/lib/api/          ← клиент API + автогенерённые TS-типы.
+frontend/app/globals.css   ← design tokens (цвета, типографика). CODEOWNERS = ВСЕ.
+tailwind.config.ts         ← токены. CODEOWNERS = ВСЕ.
+```
+
+### Owner / Readers модель для общих сущностей
+
+Каждая сущность в `backend/app/shared/schemas.py` имеет **одного owner-модуля** и любое число **reader-модулей**:
+
+| Сущность   | Owner          | Readers (примеры)              |
+|------------|----------------|-------------------------------|
+| User       | Profile        | Finances, Logs, AI, Projects   |
+| Project    | Projects       | Finances, AI                   |
+| Subscription | Profile      | Finances                       |
+
+- **Owner** делает CRUD (create/update/delete + БД-модель в своём модуле).
+- **Readers** только читают через публичный сервис другого модуля.
+
+### Правила импортов между модулями
+
+```python
+# ✅ РАЗРЕШЕНО:
+from app.shared.schemas import UserRead, ProjectRead     # public schemas
+from app.shared.enums import Role                        # public enums
+from app.profile.service import get_user_by_id           # public service of another module
+from app.profile.dependencies import get_current_user    # public dependencies
+from app.core.db import get_db                            # core utility
+
+# ❌ ЗАПРЕЩЕНО (нарушение module-инкапсуляции):
+from app.profile.models import User                # private model of another module
+from app.profile._password import hash_password    # private util (_xxx)
+from app.profile.api import router                 # api.* импортируется только в main.py
+```
+
+`scripts/check-imports.sh` (часть pre-commit hook) валит коммит при попытке такого импорта.
+
+### Когда менять общую зону
 
 - На шаге `/contracts` (первичная фиксация после `/decompose`).
-- Через **RFC-PR**: создаётся отдельный PR только с изменением контракта, тегаются все CODEOWNERS общей зоны, требуется аппрув всех.
+- На шаге `/module-init` (когда новый модуль публикует свои Read-схемы).
+- Через **RFC-PR**: отдельный PR только с изменением общей зоны, тегаются все CODEOWNERS общей зоны, требуется аппрув всех.
 
-### Если фича требует изменить контракт
+### Если фича требует изменить контракт или общий компонент
+
 Остановись и спроси пользователя:
-> «Эта фича меняет публичный контракт API (поле X в схеме Y). Запускаем мини-RFC? (y/n)»
+> «Эта фича меняет публичную форму X в общей зоне (схема / UI-компонент / дизайн-токен). Создаём RFC-PR? (y/n)»
 
-Если `y` — создай отдельный PR только с изменением контракта, тегни всех. Дождись мержа. Только тогда продолжай фичу.
+Если `y` — создай отдельный PR только с этим изменением, тегни всех CODEOWNERS общей зоны. Дождись мержа. Только тогда продолжай фичу.
 
-### Никогда не меняй контракт «попутно»
-Даже если кажется маленьким. Один контракт — один PR — один мерж.
+### Никогда не меняй общую зону «попутно»
+
+Даже если кажется маленьким. Один контракт / один UI-компонент = один RFC-PR.
+
+### Cross-module запрос данных (для reader-модулей)
+
+Если фича твоего модуля нуждается в данных другого модуля:
+
+```python
+# В backend/app/finances/service.py (Dev #2):
+from app.profile.service import get_user_by_id    # public read
+from app.shared.schemas import UserRead
+
+async def calc_payout(user_id, db):
+    user = await get_user_by_id(user_id, db)
+    return UserRead.model_validate(user)
+```
+
+Если нужного метода в чужом сервисе нет — **cross-zone request** к owner'у:
+> «запроси у Стаса добавить get_users_by_role в profile.service»
+
+### Дизайн-конвенция (фронт)
+
+- **Только токены, не хардкоды.** `bg-primary` ✅, `bg-[#0EA5E9]` ❌.
+- **Только компоненты из `components/ui/`**, не свои Button/Input/Card. Если нужного нет — RFC-PR в общую зону.
+- **AppShell** оборачивает все страницы (через `app/layout.tsx`). Менять навигацию (добавить/убрать ссылку на модуль) — RFC-PR.
+
+### CRUD convention (бэк)
+
+Все CRUD-эндпоинты пишутся по одному шаблону (см. `backend/app/profile/api.py` и `backend/app/projects/api.py` как референс):
+
+```
+POST   /<entity>           201, body, returns <Entity>Read
+GET    /<entity>           PaginatedResponse[<Entity>Read]
+GET    /<entity>/{id}      <Entity>Read | 404
+PATCH  /<entity>/{id}      <Entity>Read | 404
+DELETE /<entity>/{id}      204 | 404
+```
+
+Все ошибки → `ErrorResponse {code, message, details}`. Все списки → `PaginatedResponse {items, total, page, page_size}`.
+
+Для быстрого старта нового модуля — `./scripts/scaffold-module.sh <module> <Entity>` создаёт скелет (models / service / api / routes).
 
 ---
 

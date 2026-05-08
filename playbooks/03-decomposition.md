@@ -181,7 +181,11 @@ Module: Projects
 
 1. Закоммить `docs/plan.md` и `.github/CODEOWNERS` (commit: `docs: project decomposition v1`).
 2. Дать команде посмотреть. Спросить: «Распределение норм или поменять?»
-3. После апрува — сказать: «Иду в /contracts (project-level base contracts).»
+3. После апрува — последовательность дальше:
+   - `/contracts` — project-level base contracts (User, общие enum'ы, типы ответов в `shared/`)
+   - `/foundation` — общий каркас (auth-base, AppShell, design tokens, UI-kit, CRUD convention)
+   - После foundation — каждый Dev #N делает `/module-init` для своего модуля
+4. Сказать: «Иду в /contracts.»
 
 ## Что НЕ делать на этом шаге
 
