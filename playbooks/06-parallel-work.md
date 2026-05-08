@@ -30,24 +30,22 @@
    Продолжаем?
    ```
 
-## Цикл работы над WP
+## Цикл работы над Feature
 
 ```
 человек:  продолжаем
 ```
 
-Действия Claude:
-1. Прочитать `docs/plan.md`, найти текущий WP.
-2. Запустить `superpowers:test-driven-development`:
-   - **RED:** написать failing integration test в Docker (`backend/tests/integration/<slice>/test_<wp>.py`).
-   - Запустить: `docker compose -f docker-compose.test.yml exec -T backend pytest <path>` — должен упасть.
-   - **GREEN:** написать минимум кода в `app/<slice>/`. Запустить тест — зелёный.
-   - **REFACTOR:** причесать. Тесты остаются зелёными.
-3. Прогнать всю пачку тестов своего слайса.
-4. Если зелёное — `git add . && git commit -m "feat(<slice>): <wp-description>"`.
-5. `git push origin dev/<N>/<slice>`.
-6. Обновить статус WP в `docs/plan.md` (если этим занимается Claude — закоммить отдельным коммитом `docs: WP-X.Y done`).
-7. Спросить: «Готово. Следующий WP или отдаём на ревью?»
+Действия Claude — следуй `playbooks/11-feature-execution.md`. Кратко:
+
+1. Прочитать `docs/plan.md`, найти **текущую Feature** (первая невыполненная по порядку в активном Submodule).
+2. **Проверка module init**: если нет `docs/specs/module-<slug>.md` для этого модуля — сначала запустить `playbooks/03b-module-decomposition.md`. Без spec модуля features делать нельзя.
+3. **Классифицировать Feature** (тривиальная / средняя / крупная) по `CLAUDE.md §1`.
+4. Для **средней/крупной** — feature-level intake (несколько уточняющих вопросов) → `docs/specs/feature-<id>.md` → апрув.
+5. **TDD цикл по под-задачам** через `superpowers:test-driven-development`:
+   - RED → GREEN → REFACTOR → COMMIT (один коммит на под-задачу).
+6. После всех под-задач — прогнать тесты модуля целиком, обновить статус в `docs/plan.md`.
+7. Спросить: «Готово. Следующая Feature или отдаём PR?»
 
 ## Отдача на ревью
 

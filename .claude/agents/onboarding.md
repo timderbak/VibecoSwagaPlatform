@@ -71,6 +71,14 @@ ls docs/spec.md docs/plan.md DEVELOPER.local.md 2>/dev/null
 
 ### E. Полная инициализация (есть `DEVELOPER.local.md`)
 
+**Дополнительная проверка перед статусом:**
+Прочитай `DEVELOPER.local.md`, выясни модули этого Dev'а. Для каждого модуля проверь, есть ли `docs/specs/module-<slug>.md`. Если для какого-то модуля spec'а нет — это значит, что Dev ещё не делал module init.
+
+Если активного модуля нет (никакой module-spec не написан) — после статуса предложи:
+> «Я вижу, что для модуля `<slug>` ещё нет module-spec'а. Прежде чем начинать features, нужно пройти module-init (intake + spec + decompose модуля). Запускаем `/module-init`?»
+
+Если модуль уже инициализирован — иди к статусу как обычно.
+
 Покажи статус:
 
 ```bash

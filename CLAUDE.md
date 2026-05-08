@@ -14,32 +14,52 @@
 
 ## 1. Масштаб задачи определяет процесс
 
-Перед любым действием классифицируй задачу.
+В этом репо иерархия 4 уровня:
+```
+Project → Module → Submodule → Feature → Sub-task
+```
+- **Project-level** (весь репо) — делается один раз вначале (intake → spec → decompose → contracts → skeleton).
+- **Module-level** — каждый Dev #N делает мини-цикл для своего модуля (см. `playbooks/03b-module-decomposition.md`).
+- **Feature-level** — конкретная фича из плана модуля (см. `playbooks/11-feature-execution.md`).
+- **Sub-task** — атомарная TDD-итерация внутри Feature.
 
-### Мелкая правка (≤ 10 строк, ≤ 2 файла, нет новой логики)
-- Делать напрямую через Edit/Write.
-- Скиллы и субагенты НЕ использовать — это оверхед.
+Перед любым действием классифицируй текущую задачу:
 
-### Средняя фича (один модуль, понятное решение, нет архитектурных вопросов)
-- **Skip** `superpowers:brainstorming` — решение уже очевидно.
-- Обязательно: `superpowers:writing-plans` (часть про spec) → `superpowers:test-driven-development` → коммит.
+### Тривиальная Sub-task (≤ 10 строк, ≤ 2 файла, нет новой логики)
+- Edit/Write напрямую.
+- Скиллы и субагенты НЕ использовать.
+- Примеры: переименовать переменную, добавить лог, поправить опечатку.
 
-### Крупная фича / архитектурное изменение / новый модуль
-**Обязательно** идти по полному пайплайну:
+### Средняя Feature (один модуль, понятное решение, нет архитектурных вопросов)
+- **Skip** `superpowers:brainstorming`.
+- Обязательно: `superpowers:writing-plans` → `docs/specs/feature-<id>.md` → `superpowers:test-driven-development` по под-задачам → PR.
 
-1. `superpowers:brainstorming` — обсудить варианты, trade-offs, риски.
-2. `superpowers:writing-plans` — спека → план.
-3. `superpowers:executing-plans` или `superpowers:subagent-driven-development` (если подзадачи независимы) — имплементация.
-4. `superpowers:verification-before-completion` — финальная проверка.
+### Крупная Feature (архитектурные решения, state machine, новые контракты, cross-cutting)
+Полный пайплайн:
+1. `superpowers:brainstorming` — варианты, edge cases, риски.
+2. `superpowers:writing-plans` — `docs/specs/feature-<id>.md` + план под-задач.
+3. `superpowers:dispatching-parallel-agents` (если под-задачи независимы) или `superpowers:executing-plans`.
+4. `superpowers:test-driven-development` по каждой под-задаче.
+5. `superpowers:verification-before-completion`.
 
-Пропускать шаги **запрещено**.
+Если меняет публичный контракт — **отдельный RFC-PR** в общую зону (см. §17).
 
-### Признаки крупной задачи
-- Новый модуль/сервис, смена БД-схемы в нескольких местах, новая внешняя зависимость, изменение auth/permissions, изменение публичного API (контракта).
+### Module init (новый модуль, ещё нет `docs/specs/module-<slug>.md`)
+**Перед любыми features** в этом модуле — пройти `playbooks/03b-module-decomposition.md`:
+1. Module intake (`brainstorming`) → `docs/intake-modules/<slug>.md`.
+2. Module spec (`writing-plans`) → `docs/specs/module-<slug>.md`.
+3. Module decompose → дополнить `docs/plan.md` Features внутри Submodules.
+4. Module contracts → RFC-PR с Pydantic-моделями модуля.
+
+Без этого нельзя начинать features. Project-level decompose даёт только Module/Submodule заголовки — Feature-уровень делает каждый Dev сам для своего модуля.
 
 ### При сомнениях
-- Между мелкой и средней — делать как среднюю.
+- Между тривиальной и средней — делать как среднюю.
 - Между средней и крупной — **спросить пользователя**.
+- Если фича в новом модуле — сначала module init (`03b`), потом фича.
+
+### Признаки крупной задачи
+- Новый модуль / новая внешняя зависимость / state machine / изменение auth-permissions / изменение публичного API.
 
 ---
 

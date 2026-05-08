@@ -6,6 +6,45 @@
 
 ---
 
+## Поправка от 2026-05-08 (REV-2) — 4-уровневая иерархия Module→Submodule→Feature→Sub-task
+
+Изначальный дизайн имел 2 уровня: «slice → WP». Это работало для маленьких проектов, но **не масштабируется** на проекты типа платформы услуг, где у одного Dev — большой модуль с несколькими подмодулями и десятками фичей.
+
+**Что изменилось:**
+
+1. **Иерархия** теперь 4 уровня:
+   - **Project** (весь репо) — project-level intake/spec/decompose.
+   - **Module** (`Projects`, `Finances`, ...) — каждый Dev владеет 1+ модулями.
+   - **Submodule** (`Project core`, `Milestones`, `Deliverables`) — последовательно внутри модуля.
+   - **Feature** (один PR, один integration-test) — раньше называлось «WP».
+
+2. **Project-level decompose** теперь даёт только `Module → Submodule` заголовки и порядок. **Не пишет Features** — у Claude нет столько контекста после intake.
+
+3. **Module init** — каждый Dev #N делает мини-цикл `intake → spec → decompose → contracts` для своего модуля **сам**, перед тем как начинать features. Это decentralized planning. Новый плейбук `playbooks/03b-module-decomposition.md` и команда `/module-init`.
+
+4. **Feature execution** — новый плейбук `playbooks/11-feature-execution.md`. На «продолжаем» Claude:
+   - Находит текущую Feature в `docs/plan.md`.
+   - Проверяет, есть ли module-spec для этого модуля. Если нет — отправляет в `/module-init`.
+   - Классифицирует Feature (тривиальная / средняя / крупная) и выбирает skill-chain.
+   - Для средней/крупной — feature-level intake → `docs/specs/feature-<id>.md` → апрув → TDD по под-задачам.
+
+5. **Принцип рекурсии** — тот же `intake → spec → decompose → contracts → implement` повторяется на каждом уровне (project, module, feature), просто масштабом меньше. Зашит в обновлённый `CLAUDE.md §1`.
+
+**Зачем:**
+Без этого шаблон обещал «Dev #2 говорит "погнали" и реализует план», но реально на крупном WP у Claude недостаточно контекста (план верхнеуровневый). REV-2 делает рекурсивный планинг явным и обязательным.
+
+**Изменённые файлы:**
+- `playbooks/03-decomposition.md` — переписан под Module/Submodule (без Features).
+- `playbooks/03b-module-decomposition.md` — новый, module init.
+- `playbooks/11-feature-execution.md` — новый, feature execution.
+- `playbooks/06-parallel-work.md` — секция «Цикл работы» теперь ссылается на 11.
+- `CLAUDE.md §1` — расширенная классификация под 4 уровня.
+- `.claude/commands/module-init.md` — новая команда.
+- `.claude/agents/onboarding.md` — проверка module-spec'а перед началом features.
+- `docs/onboarding/glossary.md` — обновлена секция про иерархию.
+
+---
+
 ## Поправка от 2026-05-08 (REV-1) — CLI отброшен как избыточный
 
 После имплементации фазы 1 пользователь резонно заметил: **зачем CLI, если Claude и так умеет всё через Bash + gh?**.
