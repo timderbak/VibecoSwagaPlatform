@@ -35,8 +35,7 @@
 
 - Docker — единственная среда выполнения
 - Integration-тесты на каждый endpoint
-- Reflexion после каждой крупной фичи
-- Параллельная работа: см. `playbooks/12-isolated-development.md`
+- Общая зона (`backend/app/shared/`, `frontend/components/ui/`) меняется через одиночный PR с уведомлением команды (см. `playbooks/04-contracts.md`)
 
 ## Внешние ресурсы
 

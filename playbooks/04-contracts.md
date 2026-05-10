@@ -1,34 +1,34 @@
-# Playbook 04 — Project-level Contracts (shared zone)
+# Playbook 04 — Shared zone
 
-Цель: зафиксировать **публичные контракты общей зоны** — Pydantic Read-схемы общих сущностей, общие enum'ы, базовые типы ответов.
+Цель: зафиксировать, что лежит в общей зоне (`backend/app/shared/`, `backend/app/core/`, `frontend/components/ui/`, токены) и как с ней обращаться.
 
 ## Когда запускается
-- После того как milestone расписан на модули (через `gsd-new-milestone` или брейнсторм).
-- На этом шаге фиксируется минимум: User + базовые типы. Остальные общие сущности (Project, Subscription и т.п.) добавляются позже, когда соответствующий модуль публикует свою Read-схему.
+
+Один раз — на этапе init проекта (Foundation-фаза в GSD-roadmap), вместе с дизайн-системой и auth-base.
 
 ## Концепт «общая зона vs модуль-private»
 
 ```
 backend/app/
-├── shared/                  ← ОБЩАЯ ЗОНА (RFC-PR при изменении)
-│   ├── schemas.py           ← UserRead, ProjectRead, ... (Pydantic Read)
+├── shared/                  ← общие Pydantic Read-схемы, enum'ы, базовые типы
+│   ├── schemas.py           ← UserRead, ProjectRead, ...
 │   ├── enums.py             ← Role, ProjectStatus, ...
 │   └── _common.py           ← PaginatedResponse, ErrorResponse
-├── core/                    ← ОБЩАЯ ЗОНА (RFC-PR при изменении)
+├── core/                    ← config, db, auth utilities
 │   ├── config.py
 │   └── db.py
-├── profile/                 ← Module-private (owner-Dev)
+├── profile/                 ← module-private (owner-Dev)
 │   ├── models.py            ← SQLAlchemy User
 │   ├── service.py           ← public service API модуля
 │   └── api.py               ← endpoints
 └── ...
 ```
 
-**Правило:** Pydantic-схема (форма ответа) — общая. SQLAlchemy-модель (форма таблицы в БД) — приватная модулю-владельцу.
+Правило: **Pydantic-схема (форма ответа) — общая. SQLAlchemy-модель (форма таблицы) — приватная модулю-владельцу.**
 
 ## Что писать на этом шаге
 
-### `backend/app/shared/_common.py` (если ещё нет — есть в reference)
+### `backend/app/shared/_common.py`
 
 ```python
 class PaginatedResponse(BaseModel, Generic[T]):
@@ -45,7 +45,7 @@ class ErrorResponse(BaseModel):
 
 ### `backend/app/shared/enums.py`
 
-Минимум — `Role` (для auth). Остальные enum'ы добавляются на module-init модуля-владельца.
+Минимум — `Role` для auth.
 
 ```python
 class Role(StrEnum):
@@ -58,7 +58,7 @@ class Role(StrEnum):
 
 ### `backend/app/shared/schemas.py`
 
-Минимум — `UserRead` (без неё не работает auth). Остальные общие сущности (`ProjectRead`, `SubscriptionRead`, ...) добавляются позже:
+Минимум — `UserRead` (без неё не работает auth):
 
 ```python
 class UserRead(BaseModel):
@@ -71,7 +71,9 @@ class UserRead(BaseModel):
         from_attributes = True
 ```
 
-### Регистрация в `backend/app/shared/__init__.py`
+Остальные общие схемы (`ProjectRead`, `SubscriptionRead`, ...) добавляются позже, когда соответствующий модуль-owner их публикует.
+
+### `backend/app/shared/__init__.py`
 
 ```python
 from app.shared._common import ErrorResponse, PaginatedResponse
@@ -81,32 +83,23 @@ from app.shared.schemas import UserRead
 
 ### TS-типы
 
-Они появятся после foundation (когда auth-эндпоинты заработают). Запустить `scripts/gen-types.sh` после поднятия foundation.
+Появятся после foundation, когда auth-эндпоинты заработают. Запустить `scripts/gen-types.sh`.
 
 ## Когда сущность из модуля становится общей
 
 Не каждая сущность модуля идёт в `shared/`. Только если **другие модули будут её читать**.
 
-| Сущность              | Где живёт Pydantic-схема              | Почему |
-|-----------------------|---------------------------------------|--------|
-| `User`                | `app.shared.schemas.UserRead`         | читают все модули |
-| `Project`             | `app.shared.schemas.ProjectRead`      | читают Finances, AI |
+| Сущность              | Где живёт Pydantic-схема                       | Почему |
+|-----------------------|-----------------------------------------------|--------|
+| `User`                | `app.shared.schemas.UserRead`                 | читают все модули |
+| `Project`             | `app.shared.schemas.ProjectRead`              | читают Finances, AI |
 | `MoneyEntry`          | `app.finances.api.MoneyEntryRead` (приватный) | никто не читает кроме Finances |
-| `AuditLog`            | `app.logs.api.AuditLogRead` (приватный) | только Logs показывает |
+| `AuditLog`            | `app.logs.api.AuditLogRead` (приватный)       | только Logs показывает |
 
-Решает owner-модуль перед началом фич: **«какую часть моего модуля видят другие?»**
+Решает owner-модуль перед началом фич: «какую часть моего модуля видят другие?»
 
-## Процесс изменения общей зоны
+## Изменение общей зоны
 
-После первичной фиксации **`shared/` это территория RFC-PR**:
-1. Owner создаёт PR **только с изменением `shared/schemas.py`** (+ при необходимости миграция).
-2. Reviewers — все остальные Dev. Зовём явно (issue-комментом, чатом).
-3. Аппрув всех → мерж.
-4. Reader-модули могут использовать новое поле/схему.
+Можно менять кем угодно — **но кинь сообщение в командный чат**, что меняешь. Без формальной RFC-PR-церемонии, без обязательных аппрувов. Если другой Dev не согласен — обсуждаем в комментах PR'а / в чате, договариваемся.
 
-Не миксовать с фичей. Один RFC-PR = одно изменение.
-
-## После завершения
-
-1. Закоммить `backend/app/shared/*` (commit: `feat: project base contracts (User, common types, enums)`).
-2. Дальше — поднимать foundation (auth-base, AppShell, design tokens) одним PR. Этим занимается тот же Dev, который зафиксировал контракты.
+Принцип: одна осмысленная единица изменения = один PR. Не суй правки общей зоны «попутно» внутрь фичи — сделай отдельный коммит/PR, чтобы было видно.

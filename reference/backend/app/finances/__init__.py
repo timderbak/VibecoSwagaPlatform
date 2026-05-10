@@ -1,10 +1,7 @@
 """Finances module (REFERENCE EXAMPLE).
 
-Демонстрирует:
-  - cross-module reads (читает User из Profile, Project из Projects)
-  - mock-layer для Mode B (isolated development)
-  - dependency injection переключатель (см. deps.py)
+Демонстрирует cross-module read: Finances читает User из Profile и Project
+из Projects через их публичные сервисы.
 
-В реальном проекте этот модуль создаётся через `/module-init` владельцем
-финансов, и его внутреннее устройство решает он сам. Это лишь шаблон-пример.
+В реальном проекте этот модуль владелец-Dev создаёт сам — это лишь шаблон.
 """

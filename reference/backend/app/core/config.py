@@ -16,9 +16,5 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: str = "development"
 
-    # Mode B (isolated development) — см. playbook 12.
-    # При true cross-module reads возвращают фейковые данные через _mocks.py.
-    MOCK_CROSS_MODULES: bool = False
-
 
 settings = Settings()

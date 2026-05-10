@@ -5,8 +5,9 @@
 /**
  * shadcn/ui design tokens.
  *
- * Это общая зона — менять только через RFC-PR. Все модули используют
- * ТОЛЬКО эти переменные через классы Tailwind (bg-primary, text-foreground, ...).
+ * Общая зона. Все модули используют ТОЛЬКО эти переменные через классы
+ * Tailwind (bg-primary, text-foreground, ...). Меняешь — кинь сообщение
+ * команде в чат.
  */
 @layer base {
   :root {

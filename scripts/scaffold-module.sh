@@ -12,7 +12,7 @@
 #   frontend/app/<module>/
 #     page.tsx, [id]/page.tsx
 #
-# Не пишет публичную Read-схему в shared/ — это RFC-PR (см. CLAUDE.md §17).
+# Не пишет публичную Read-схему в shared/ — добавь её сам в backend/app/shared/schemas.py.
 # Запускается после того, как для модуля написан spec и план.
 
 set -euo pipefail
@@ -112,7 +112,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.profile.dependencies import get_current_user
 from app.shared._common import PaginatedResponse
-# TODO: после RFC-PR с публичной схемой:
+# TODO: добавь публичную ${ENTITY}Read в backend/app/shared/schemas.py:
 # from app.shared.schemas import ${ENTITY}Read
 from app.$MODULE.service import get_${ENTITY_LOWER}_by_id
 
@@ -158,7 +158,7 @@ echo "✓ Module $MODULE с сущностью $ENTITY создан."
 echo ""
 echo "Дальше:"
 echo "  1. Заполни backend/app/$MODULE/models.py — поля сущности"
-echo "  2. Создай RFC-PR с публичной ${ENTITY}Read в backend/app/shared/schemas.py"
-echo "  3. После мержа RFC-PR — добавь импорт в api.py и регистрируй роутер в main.py"
+echo "  2. Добавь публичную ${ENTITY}Read в backend/app/shared/schemas.py (если её будут читать другие модули)"
+echo "  3. Добавь импорт в api.py и зарегистрируй роутер в main.py"
 echo "  4. alembic revision --autogenerate, alembic upgrade head"
-echo "  5. Фичи — через superpowers:writing-plans + superpowers:test-driven-development (см. CLAUDE.md §1)"
+echo "  5. Фичи — через GSD (gsd-spec-phase → gsd-plan-phase → gsd-execute-phase) или superpowers (writing-plans + TDD)"

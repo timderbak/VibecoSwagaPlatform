@@ -1,12 +1,12 @@
 """Публичные Read-схемы для общих сущностей.
 
-Каждая схема имеет owner-модуль. Менять — только через RFC-PR.
+Каждая схема имеет owner-модуль. Меняешь — кинь сообщение команде в чат.
 
 Owner-модуль решает форму схемы. Reader-модули импортируют отсюда:
   from app.shared.schemas import UserRead
 
-Если другой модуль хочет добавить поле в UserRead — это cross-zone-issue
-к owner'у (Profile в случае User).
+Если другой модуль хочет добавить поле в UserRead — обычный GitHub-issue
+с assignee на owner'а (Profile в случае User).
 """
 
 from datetime import datetime

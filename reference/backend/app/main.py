@@ -10,7 +10,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-# Регистрация роутеров модулей (каждый Dev добавляет свой при /module-init).
+# Регистрация роутеров модулей (каждый Dev добавляет свой при создании модуля).
 app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(projects_router, prefix=settings.API_V1_STR)
 
