@@ -1,0 +1,64 @@
+# Developers
+
+Кто работает в проекте, какая зона ответственности, в каком worktree/ветке.
+
+> Этот файл — **источник правды для multi-developer mode** (CLAUDE.md §15). Каждый Claude-сеанс начинается с чтения этого файла, чтобы понимать границы зоны.
+
+---
+
+## Команда
+
+| # | Имя | GitHub | Зона ответственности | Префикс ветки |
+|---|---|---|---|---|
+| 1 | <Имя> | @<handle> | `backend/app/<module-1>/`, `frontend/app/<module-1>/` | `dev/1/` |
+| 2 | <Имя> | @<handle> | `backend/app/<module-2>/`, `frontend/app/<module-2>/` | `dev/2/` |
+| 3 | <Имя> | @<handle> | `backend/app/<module-3>/`, `frontend/app/<module-3>/` | `dev/3/` |
+
+---
+
+## Общая зона (shared)
+
+> См. CLAUDE.md §17 — общая зона меняется **только через RFC-PR** с одобрением минимум одного другого dev.
+
+- `backend/app/shared/` — общие схемы, енумы, утилиты
+- `backend/app/core/` — конфиг, БД-сессия, аутентификация
+- `frontend/components/ui/` — базовые UI-компоненты
+- `frontend/components/layout/` — AppShell, навигация
+- `frontend/lib/` — клиент API, утилиты
+- `docker-compose.yml`, `docker-compose.test.yml`, `.github/workflows/`
+
+**Ответственный за общую зону:** Founder/Tech Lead (в этом проекте — <имя>).
+
+---
+
+## Cross-module зависимости
+
+<!-- Опиши, кто чьи данные читает, чтобы избежать прямых импортов. См. CLAUDE.md §17. -->
+
+| Кто читает | Что читает | Через что |
+|---|---|---|
+| `<module-2>` | `User` из `<module-1>` | `shared/<module-1>.py:UserRead` |
+| `<module-3>` | `Project` из `<module-2>` | API endpoint `/api/v1/projects/{id}` |
+
+---
+
+## Текущие worktree (опционально)
+
+> Если используется worktree-подход (`superpowers:using-git-worktrees`).
+
+| Dev | Путь worktree | Активная фаза | Ветка |
+|---|---|---|---|
+| <имя> | `~/worktrees/<project>-<dev>/` | `2026-XX-XX-<feature>` | `dev/<N>/<slice>` |
+
+---
+
+## Onboarding нового разработчика
+
+1. `git clone <repo>` + `cd` в проект
+2. `git checkout -b dev/<N>/onboarding`
+3. Запустить `claude` → сказать «я новый разработчик, погнали»
+4. Claude:
+   - Прочитает `DEVELOPERS.md` и спросит, кто из перечисленных ты
+   - Поставит `pre-commit`-хук с проверкой границ зоны (`scripts/check-imports.sh`)
+   - Покажет твою область и cross-zone зависимости
+   - Прочитает `business-flows.md` и `features.md`, чтобы войти в контекст

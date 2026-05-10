@@ -25,9 +25,10 @@ Project → Module → Submodule → Feature → Sub-task
 
 ### Project-level — новый репозиторий, ещё нет PROJECT.md / spec
 1. `gsd-new-project` — задаёт глубокие вопросы, создаёт PROJECT.md, ROADMAP.md, выбирает первый milestone.
-2. После того как roadmap зафиксирован — `playbook 04-contracts.md` (наша shared-зона: User, базовые типы, enums).
-3. Дальше — foundation (auth-base, AppShell, design tokens) одним PR. Это просто крупная Feature: `superpowers:writing-plans` → `superpowers:test-driven-development` → PR.
-4. После foundation — каждый Dev берёт свой модуль и идёт в Module-level.
+2. **Дизайн-система** через `frontend-design` (или `ui-ux-pro-max`): палитра, типографика, design tokens в `tailwind.config.ts`/`globals.css`, базовые компоненты (`Button`, `Input`, `Card`, `EmptyState`, `Skeleton`) в `frontend/components/ui/`. Это нужно сделать **до** того, как кодеры разойдутся по модулям — иначе каждый напишет свой `Button`.
+3. После того как roadmap зафиксирован — `playbook 04-contracts.md` (наша shared-зона: User, базовые типы, enums).
+4. Дальше — foundation (auth-base, AppShell, дизайн-система зафиксирована из шага 2) одним PR. Это просто крупная Feature: `superpowers:writing-plans` → `superpowers:test-driven-development` → PR.
+5. После foundation — каждый Dev берёт свой модуль и идёт в Module-level.
 
 ### Module-level — новый модуль внутри проекта
 1. `gsd-new-milestone` (если модуль = milestone) **или** `gsd-spec-phase` для spec модуля.
@@ -39,7 +40,7 @@ Project → Module → Submodule → Feature → Sub-task
 ### Feature-level — конкретная фича из плана модуля
 - **Тривиальная sub-task** (≤ 10 строк, ≤ 2 файла, нет новой логики) — Edit/Write напрямую, без скиллов. Примеры: переименовать переменную, добавить лог, поправить опечатку.
 - **Средняя Feature** (день работы, понятное решение):
-  1. `superpowers:writing-plans` — короткий план в `docs/specs/feature-<id>.md`.
+  1. `gsd-spec-phase` или `superpowers:writing-plans` — короткий план в `.planning/phases/<date>-<slug>/PLAN.md`.
   2. `superpowers:test-driven-development` — RED → GREEN → REFACTOR → COMMIT.
   3. `superpowers:verification-before-completion` перед PR.
 - **Крупная Feature** (архитектурные решения, state machine, новые контракты, cross-cutting):
@@ -148,21 +149,27 @@ Project → Module → Submodule → Feature → Sub-task
 ```
 ├── CLAUDE.md
 ├── README.md
+├── DEVELOPERS.md                # команда + зоны ответственности (см. §15)
 ├── docker-compose.yml
 ├── docker-compose.test.yml
 ├── deploy.sh
 ├── .env.example
 ├── .claude-plugins.json         # требуемые плагины (superpowers, gsd, claude-mem, context-mode, context7, reflexion, github)
+├── .planning/                   # GSD: контекст проекта + roadmap + фазы
+│   ├── PROJECT.md
+│   ├── ROADMAP.md
+│   └── phases/
+│       └── <YYYY-MM-DD>-<slug>/
+│           ├── SPEC.md, PLAN.md, REVIEW.md, VERIFICATION.md
 ├── docs/
 │   ├── business-flows.md
 │   ├── tech-stack.md
 │   ├── features.md
 │   ├── architecture.md
 │   ├── changelog.md
-│   ├── contracts/               # Pydantic + сгенерённые OpenAPI/TS
-│   └── specs/                   # спеки крупных фич
-├── backend/                     # FastAPI
-├── frontend/                    # Next.js
+│   └── contracts/               # Pydantic + сгенерённые OpenAPI/TS
+├── backend/                     # FastAPI (или другой бэкенд)
+├── frontend/                    # Next.js (или другой фронтенд)
 ├── playbooks/                   # уникальные для шаблона процедуры
 │   ├── 04-contracts.md          # shared zone
 │   ├── 12-isolated-development.md  # Mode B
@@ -176,7 +183,7 @@ Project → Module → Submodule → Feature → Sub-task
     └── workflows/
 ```
 
-Документация только в `docs/`. Код только в `backend/` и `frontend/`.
+Документация только в `docs/`. Спеки фаз — в `.planning/phases/`. Код — только в `backend/` и `frontend/`.
 
 ---
 
@@ -248,9 +255,10 @@ Project → Module → Submodule → Feature → Sub-task
 
 ### Базовая конвенция
 
-- Каждый Dev знает, какие модули его (договорённость в чате / в `docs/business-flows.md`).
+- **Источник правды по зонам — `DEVELOPERS.md` в корне.** Кто dev1/dev2/dev3, какие модули его, какой префикс ветки.
+- **Каждый кодер автономен:** свой PR создаёт сам и сам же мержит через auto-merge. Cross-approve не используется — коллеги не блокируют друг друга.
 - В чужой модуль не пишешь без согласования с owner'ом. Хочешь? Создай GitHub-issue с assignee на него.
-- Изменения в общей зоне (`backend/app/shared/`, `backend/app/core/`, `frontend/components/ui/`, `frontend/components/layout/`, `frontend/app/globals.css`, `tailwind.config.ts`) — **только через RFC-PR** (см. §17), с явным approve остальных Dev'ов в чате/PR-комментах.
+- Изменения в общей зоне (`backend/app/shared/`, `backend/app/core/`, `frontend/components/ui/`, `frontend/components/layout/`, `frontend/app/globals.css`, `tailwind.config.ts`) — **отдельным RFC-PR** (см. §17), не смешивать с фичей. Команду уведомить в чате/PR-комменте, но approve не блокирующий.
 - Конфликты разруливаются на еженедельном Integration Day (см. `playbooks/13-integration-day.md`).
 
 ### Что осталось как мягкий enforcement
@@ -262,17 +270,20 @@ Project → Module → Submodule → Feature → Sub-task
 
 Человек печатает короткие русские фразы. Ты выполняешь git/gh.
 
+> **Внутренний движок:** для большинства фраз ниже под капотом вызывается `/gsd-progress` — unified situational командa GSD, которая сама понимает «check progress / advance workflow / freeform intent» по фразе. Не дублируй её логику — делегируй.
+
 ### Словарь команд
 
 | Фраза человека | Действие |
 |---|---|
-| `что у нас?` | `git status -sb`, `gh pr list --author @me --state open`, `gh issue list --assignee @me`, текущий план/Feature |
-| `продолжаем` | Следующая задача из плана через TDD цикл (`superpowers:writing-plans` если ещё нет, потом TDD) |
-| `отдавай` | `superpowers:verification-before-completion` → `git push` → `gh pr create` → `gh pr merge --auto --squash` |
-| `аппрув N` | `gh pr review --approve <N>` |
+| `что у нас?` | `/gsd-progress` (покажет: ветку, PR'ы, текущую фазу, незавершённые задачи) |
+| `продолжаем` | `/gsd-progress` (продолжает текущую фазу) или `/gsd-execute-phase` если уже есть PLAN.md; для тривиальной — TDD напрямую |
+| `отдавай` | `superpowers:verification-before-completion` → `git push` → `gh pr create` → `gh pr merge --auto --squash`; для крупной фазы — `/gsd-ship` |
 | `стоп` | Прерви текущее действие, отчитайся |
-| `откати последний` | `git revert HEAD` (БЕЗ force) |
+| `откати последний` | `git revert HEAD` (БЕЗ force); для отката всей фазы — `/gsd-undo` |
 | `запроси у <имя> <что>` | `gh issue create --title "[<module>] ..." --assignee <owner>` |
+
+> **Cross-approve между кодерами не используется.** Каждый автономно мержит свои PR через auto-merge — нужен только зелёный CI. Никаких «аппрув N»: команда vibe-кодеров не блокирует друг друга на ревью.
 
 ### Что Claude делает автоматически (без спроса)
 
@@ -286,11 +297,11 @@ Project → Module → Submodule → Feature → Sub-task
 
 ### Что Claude НЕ делает без человека
 
-- Аппрув чужого PR (только по команде «аппрув N»).
 - Force-push.
 - Изменение `backend/app/shared/`, `frontend/components/ui/`, `tailwind.config.ts` без RFC-PR (см. §17).
 - Удаление чужой ветки.
 - `gh pr merge` в обход auto-merge.
+- Аппрув или мерж **чужого** PR (vibe-кодер работает только в своей зоне; чужие PR — не его дело).
 
 ### При красном CI
 1. Анализируй вывод теста.
@@ -384,6 +395,8 @@ async def calc_payout(user_id, db):
 - **Только токены, не хардкоды.** `bg-primary` ✅, `bg-[#0EA5E9]` ❌.
 - **Только компоненты из `components/ui/`**, не свои Button/Input/Card. Если нужного нет — RFC-PR в общую зону.
 - **AppShell** оборачивает все страницы (через `app/layout.tsx`). Менять навигацию — RFC-PR.
+- **Для генерации/правки UI** используй `frontend-design` (стандарт) или `ui-ux-pro-max` (если нужна палитра/типографика/чарты на выбор). Не пиши Tailwind «на глаз» — это даёт generic AI aesthetic.
+- **Дизайн-система фиксируется ОДИН РАЗ в foundation** (см. §1). Дальше каждый кодер использует готовые токены и компоненты. Расширение дизайн-системы — отдельный RFC-PR в `tailwind.config.ts`/`globals.css`/`components/ui/`.
 
 ### CRUD convention (бэк)
 
@@ -407,13 +420,15 @@ DELETE /<entity>/{id}      204 | 404
 
 При запуске Claude в репозитории, созданном из шаблона:
 
-### Если репо новый (нет `docs/architecture.md` или похожего якоря)
-Не предлагай задачи. Запусти `gsd-new-project` — он соберёт глубокий контекст и создаст PROJECT.md / ROADMAP.md.
+### Если репо новый (нет `.planning/PROJECT.md` или он не заполнен)
+Не предлагай задачи. Запусти `/gsd-new-project` — он соберёт глубокий контекст и создаст `.planning/PROJECT.md` и `.planning/ROADMAP.md`.
 
 ### Если репо живой
-- Прочитай `docs/changelog.md` (если есть) — что менялось последним.
-- `git status -sb` + `gh pr list --author @me`.
-- Спроси «что делаем». Если человек говорит «продолжаем» — следующая Feature из текущего плана.
+1. Прочитай `DEVELOPERS.md` — спроси, кто из перечисленных ты (если непонятно из git config).
+2. Прочитай `.planning/PROJECT.md` и `.planning/ROADMAP.md` — текущий контекст и фазы.
+3. Прочитай `docs/changelog.md` (если есть) — что менялось последним.
+4. `claude-mem:mem-search` — есть ли релевантные наблюдения из прошлых сессий.
+5. `/gsd-progress` или `/gsd-resume-work` — чем заняться дальше.
 
 ---
 
