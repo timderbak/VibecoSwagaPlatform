@@ -1,0 +1,44 @@
+name: Staging Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: настроить под вашу инфраструктуру (Render / Fly.io / VPS / k8s).
+      # Этот воркфлоу — заглушка, его конкретизирует команда на этапе foundation.
+
+      - name: Build images
+        run: docker compose build
+
+      - name: Run migrations on staging DB
+        env:
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          # docker run --rm -e DATABASE_URL=$STAGING_DATABASE_URL <backend-image> alembic upgrade head
+          echo "Migrations applied (placeholder)"
+
+      - name: Deploy
+        run: |
+          # ваша команда деплоя
+          echo "Deployed to staging (placeholder)"
+
+      - name: Notify Integration Day channel
+        if: always()
+        run: |
+          # webhook в Slack / Telegram с результатом
+          echo "Deploy status: ${{ job.status }}"

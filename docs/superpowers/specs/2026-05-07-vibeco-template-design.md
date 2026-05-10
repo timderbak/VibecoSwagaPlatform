@@ -6,6 +6,55 @@
 
 ---
 
+## Поправка от 2026-05-10 (REV-4) — Гибридная модель интеграции (Mode A + Mode B)
+
+После REV-3 пользователь поднял реальный вопрос: при чисто-PR-flow подходе разработчики не могут уйти в flow на неделю — постоянная merge-возня. При этом для мелких задач PR-flow удобен. Решение — **гибридная модель** с явным выбором стиля по размеру задачи.
+
+**Что изменилось:**
+
+1. **Два разрешённых стиля работы:**
+   - **Mode A (PR-flow)** — для тривиальных/средних задач и RFC-PR в общую зону. Каждая Feature → PR → auto-merge.
+   - **Mode B (isolated development)** — для больших Submodule/Module. Dev работает в `dev/<N>/<submodule>` неделями, один большой PR в конце.
+
+2. **Mock-layer для cross-module reads.** Чтобы Dev в Mode B не упирался в готовность коллег, каждый модуль-reader имеет:
+   - `app/<module>/_mocks.py` — фейковые реализации с теми же сигнатурами
+   - `app/<module>/deps.py` — DI-переключатель (`get_user_lookup`, `get_project_lookup`)
+   - `MOCK_CROSS_MODULES` в `core/config.py` — флаг режима
+   Пример: `reference/backend/app/finances/`.
+
+3. **Скрипт `scripts/mock-mode.sh on|off|status`** — управляет флагом через `.env.local` (.gitignored).
+
+4. **Integration Day** — раз в неделю команда собирается, мержит готовые Mode B PR'ы, прогоняет end-to-end на staging. Новый плейбук `playbooks/13-integration-day.md`.
+
+5. **Auto-deploy на staging** — `.github/workflows/staging-deploy.yml` поднимает main на staging для Integration Day smoke-теста.
+
+6. **Contract tests как gate.** Регулярно запускаемые тесты против замороженного OpenAPI snapshot (`docs/contracts/openapi.json`) — Dev в Mode B видит дрейф контрактов сразу при rebase, а не через неделю.
+
+7. **CLAUDE.md §19** — новый раздел про стили работы. Claude автоматически предлагает Mode B при работе над крупным Submodule.
+
+**Жёсткие ограничения Mode B:**
+- Длина ветки ≤ 2 недель.
+- Не менять общую зону в Mode B (только через Mode A RFC-PR в main, потом rebase своей ветки).
+- Перед финальным PR — отключить моки, проверить на реальных зависимостях.
+- Contract test обязателен перед финальным PR.
+
+**Изменённые/новые файлы:**
+- `playbooks/12-isolated-development.md` — новый, Mode B детально.
+- `playbooks/13-integration-day.md` — новый, weekly sync процесс.
+- `scripts/mock-mode.sh` — новый, переключатель.
+- `reference/backend/app/finances/` — новый пример reader-модуля с _mocks.py + deps.py + service.py.
+- `reference/backend/app/core/config.py` — добавлен флаг `MOCK_CROSS_MODULES`.
+- `reference/.github/workflows/staging-deploy.yml` — новый, auto-deploy на staging.
+- `CLAUDE.md §19` — раздел про стили работы.
+- spec REV-4.
+
+**Что НЕ изменилось:**
+- 4-уровневая иерархия (REV-2)
+- Foundation + shared zone (REV-3)
+- Auto-pilot фразы и git-операции
+
+---
+
 ## Поправка от 2026-05-08 (REV-3) — Foundation, shared zone, owner/readers модель
 
 После REV-2 (4-уровневая иерархия) выявилось ещё одно слабое место: на момент `module-init` каждого Dev'а у него нет **общего каркаса** — нет AppShell, дизайн-токенов, базового auth, общих UI-компонентов, общих публичных схем. Каждый Dev изобретал бы своё.

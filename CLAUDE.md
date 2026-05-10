@@ -441,6 +441,75 @@ SessionStart-hook запускает агента `onboarding`. Он:
 
 ---
 
+## 19. Стиль работы Dev'а — Mode A vs Mode B
+
+В этом репо два разрешённых стиля работы. Выбор — по размеру задачи.
+
+### Mode A — PR-flow (текущий по умолчанию)
+Каждая Feature → PR → auto-merge в main. Подходит для:
+- Тривиальных sub-task (≤10 строк, фикс)
+- Средних Features (день работы)
+- Любого изменения в общую зону (RFC-PR — всегда Mode A)
+
+См. `playbooks/06-parallel-work.md` и `11-feature-execution.md`.
+
+### Mode B — isolated development (длинная ветка)
+Dev уходит в `dev/<N>/<submodule>` на дни/недели. Один большой PR в конце. Подходит для:
+- Большого Submodule (неделя+)
+- Целого Module
+- Когда нужен flow-state без отвлечений
+
+Включает **mock-режим** для cross-module reads — модуль работает на фейковых данных, не упираясь в коллег. См. `playbooks/12-isolated-development.md`.
+
+### Когда какой выбрать
+
+| Размер | Mode | Куда коммитим |
+|---|---|---|
+| Тривиальная sub-task | A | прямо в main через PR |
+| Средняя Feature | A | прямо в main через PR |
+| Большой Submodule | B | в `dev/<N>/<submodule>`, в main одним PR |
+| Целый Module | B | в `dev/<N>/<module>`, в main одним PR |
+| Изменение общей зоны | A (RFC-PR) | всегда отдельным PR в main |
+
+### Mock-режим (Mode B)
+
+В каждом модуле, который **читает** данные других модулей, должен быть:
+- `app/<module>/_mocks.py` — mock-функции с теми же сигнатурами что и реальные сервисы
+- `app/<module>/deps.py` — dependency injection переключатель `get_<entity>_lookup()`
+
+Пример: `reference/backend/app/finances/`.
+
+Включить mock: `./scripts/mock-mode.sh on` (выставит `MOCK_CROSS_MODULES=true` в `.env.local`).
+
+### Integration Day (раз в неделю)
+
+Каждую пятницу команда собирается:
+1. Готовые PR'ы из Mode B мержим в main
+2. Auto-deploy на staging
+3. End-to-end smoke втроём
+4. Договорённости на следующую неделю
+
+См. `playbooks/13-integration-day.md`.
+
+### Правила Mode B
+
+- ❌ Не менять общую зону (`shared/`, `core/`, `components/ui/`) в долгой ветке. Только Mode A через RFC-PR.
+- ❌ Не делать ветку длиннее **2 недель**. Иначе финальный merge будет адом.
+- ✅ `git rebase main` раз в 1-2 дня (для подтягивания мелких fixes).
+- ✅ Contract test (`pytest tests/integration/test_contracts.py`) запускать регулярно.
+- ✅ Перед финальным PR — выключить mock-режим, проверить на реальных зависимостях.
+
+### Что выбирает Claude автоматически
+
+Когда человек говорит «продолжаем» / «погнали»:
+1. Прочитать `docs/plan.md`, найти текущую Feature
+2. Если Submodule **только начинается** или **ещё в разработке**, и спросить человека: «Это часть длинного Submodule. Включить Mode B (длинная ветка + моки) или работать в Mode A (PR в main каждой Feature)?»
+3. Действовать по выбору.
+
+Если человек явно сказал «работаем в Mode B» / «уходим в свою пещеру» — переключиться без вопросов.
+
+---
+
 ## Если правило конфликтует с запросом в чате
 
 **Сначала уточнить у пользователя.** Не игнорировать правило молча. Не «обойти ради скорости».
