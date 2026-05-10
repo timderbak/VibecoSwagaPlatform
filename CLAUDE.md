@@ -2,6 +2,8 @@
 
 Универсальные правила работы в репозиториях, созданных из VibecoSwagaTemplate. Читать до начала любой задачи.
 
+Шаблон **не пишет своих скиллов и слэш-команд**. Он опирается на установленные плагины (`.claude-plugins.json`) и явно указывает, какой скилл использовать на каждом шаге.
+
 ---
 
 ## 0. Язык
@@ -14,49 +16,44 @@
 
 ## 1. Масштаб задачи определяет процесс
 
-В этом репо иерархия 4 уровня:
+Иерархия 4 уровня:
 ```
 Project → Module → Submodule → Feature → Sub-task
 ```
-- **Project-level** (весь репо) — делается один раз вначале (intake → spec → decompose → contracts → skeleton).
-- **Module-level** — каждый Dev #N делает мини-цикл для своего модуля (см. `playbooks/03b-module-decomposition.md`).
-- **Feature-level** — конкретная фича из плана модуля (см. `playbooks/11-feature-execution.md`).
-- **Sub-task** — атомарная TDD-итерация внутри Feature.
 
-Перед любым действием классифицируй текущую задачу:
+Перед любым действием классифицируй задачу и выбери скилл:
 
-### Тривиальная Sub-task (≤ 10 строк, ≤ 2 файла, нет новой логики)
-- Edit/Write напрямую.
-- Скиллы и субагенты НЕ использовать.
-- Примеры: переименовать переменную, добавить лог, поправить опечатку.
+### Project-level — новый репозиторий, ещё нет PROJECT.md / spec
+1. `gsd-new-project` — задаёт глубокие вопросы, создаёт PROJECT.md, ROADMAP.md, выбирает первый milestone.
+2. После того как roadmap зафиксирован — `playbook 04-contracts.md` (наша shared-зона: User, базовые типы, enums).
+3. Дальше — foundation (auth-base, AppShell, design tokens) одним PR. Это просто крупная Feature: `superpowers:writing-plans` → `superpowers:test-driven-development` → PR.
+4. После foundation — каждый Dev берёт свой модуль и идёт в Module-level.
 
-### Средняя Feature (один модуль, понятное решение, нет архитектурных вопросов)
-- **Skip** `superpowers:brainstorming`.
-- Обязательно: `superpowers:writing-plans` → `docs/specs/feature-<id>.md` → `superpowers:test-driven-development` по под-задачам → PR.
+### Module-level — новый модуль внутри проекта
+1. `gsd-new-milestone` (если модуль = milestone) **или** `gsd-spec-phase` для spec модуля.
+2. `gsd-plan-phase` — план модуля с Submodules / Features.
+3. `playbook 04-contracts.md` снова — добавить публичную Read-схему модуля в `shared/` через **RFC-PR** (см. §17).
+4. `./scripts/scaffold-module.sh <module> <Entity>` — каркас файлов.
+5. Дальше — Feature-level.
 
-### Крупная Feature (архитектурные решения, state machine, новые контракты, cross-cutting)
-Полный пайплайн:
-1. `superpowers:brainstorming` — варианты, edge cases, риски.
-2. `superpowers:writing-plans` — `docs/specs/feature-<id>.md` + план под-задач.
-3. `superpowers:dispatching-parallel-agents` (если под-задачи независимы) или `superpowers:executing-plans`.
-4. `superpowers:test-driven-development` по каждой под-задаче.
-5. `superpowers:verification-before-completion`.
-
-Если меняет публичный контракт — **отдельный RFC-PR** в общую зону (см. §17).
-
-### Module init (новый модуль, ещё нет `docs/specs/module-<slug>.md`)
-**Перед любыми features** в этом модуле — пройти `playbooks/03b-module-decomposition.md`:
-1. Module intake (`brainstorming`) → `docs/intake-modules/<slug>.md`.
-2. Module spec (`writing-plans`) → `docs/specs/module-<slug>.md`.
-3. Module decompose → дополнить `docs/plan.md` Features внутри Submodules.
-4. Module contracts → RFC-PR с Pydantic-моделями модуля.
-
-Без этого нельзя начинать features. Project-level decompose даёт только Module/Submodule заголовки — Feature-уровень делает каждый Dev сам для своего модуля.
+### Feature-level — конкретная фича из плана модуля
+- **Тривиальная sub-task** (≤ 10 строк, ≤ 2 файла, нет новой логики) — Edit/Write напрямую, без скиллов. Примеры: переименовать переменную, добавить лог, поправить опечатку.
+- **Средняя Feature** (день работы, понятное решение):
+  1. `superpowers:writing-plans` — короткий план в `docs/specs/feature-<id>.md`.
+  2. `superpowers:test-driven-development` — RED → GREEN → REFACTOR → COMMIT.
+  3. `superpowers:verification-before-completion` перед PR.
+- **Крупная Feature** (архитектурные решения, state machine, новые контракты, cross-cutting):
+  1. `superpowers:brainstorming` — варианты, edge cases, риски.
+  2. `superpowers:writing-plans` — подробный план.
+  3. `superpowers:dispatching-parallel-agents` (если под-задачи независимы) или `superpowers:executing-plans`.
+  4. `superpowers:test-driven-development` по каждой под-задаче.
+  5. `superpowers:verification-before-completion`.
+  6. Если меняет публичный контракт shared/ — отдельный RFC-PR (§17).
 
 ### При сомнениях
 - Между тривиальной и средней — делать как среднюю.
 - Между средней и крупной — **спросить пользователя**.
-- Если фича в новом модуле — сначала module init (`03b`), потом фича.
+- Если фича в новом модуле — сначала Module-level, потом фича.
 
 ### Признаки крупной задачи
 - Новый модуль / новая внешняя зависимость / state machine / изменение auth-permissions / изменение публичного API.
@@ -87,9 +84,9 @@ Project → Module → Submodule → Feature → Sub-task
 
 ### Общие правила
 - Тесты пишутся **вместе с кодом**, не после. Без теста — фича не готова.
-- TDD цикл: RED → GREEN → REFACTOR → COMMIT.
-- Агент `pr-checker` блокирует PR при отсутствии integration-теста на новые эндпоинты.
+- TDD цикл (`superpowers:test-driven-development`): RED → GREEN → REFACTOR → COMMIT.
 - После любой реализации — прогнать всю тестовую пачку. Красный тест = работа не завершена.
+- Перед PR — `superpowers:verification-before-completion`.
 
 ---
 
@@ -103,7 +100,7 @@ Project → Module → Submodule → Feature → Sub-task
 
 ## 5. Stop rule: три провала — стоп и читать доки
 
-Если **три раза подряд** не можешь решить одну проблему (ошибка при том же шаге, неработающая интеграция, не находится API):
+Если **три раза подряд** не можешь решить одну проблему:
 
 1. **Остановиться.** Не пробовать четвёртый раз наугад.
 2. Найти официальную документацию через `mcp__plugin_context7_context7__resolve-library-id` + `query-docs`, или web-search.
@@ -111,7 +108,9 @@ Project → Module → Submodule → Feature → Sub-task
 4. Сформулировать в чате: «Я застрял на X, прочитал Y, гипотеза Z».
 5. **Только тогда** — новая попытка.
 
-**В auto-pilot режиме (см. §16) ты обязан сам выйти из retry-цикла после 3-го фейла и позвать человека.** Бездумный retry loop — главный антипаттерн.
+В auto-pilot режиме (см. §16) ты обязан сам выйти из retry-цикла после 3-го фейла и позвать человека. Бездумный retry loop — главный антипаттерн.
+
+Если уперся в баг — `superpowers:systematic-debugging`.
 
 ---
 
@@ -140,11 +139,7 @@ Project → Module → Submodule → Feature → Sub-task
 
 ## 8. Reflexion после крупных фич
 
-После имплементации крупной фичи запустить `reflexion:critique` **автоматически**.
-
-В этом шаблоне это делает GitHub Action `.github/workflows/reflexion.yml` после мержа коммита `feat:` в main. Findings падают issues с тегом `reflexion-finding`, ассайнятся автору.
-
-Reflexion **не блокирует мерж** — работает после.
+После имплементации крупной фичи запустить `reflexion:critique` **автоматически** (вручную, без CI-обвязки) и пройтись по findings вместе с пользователем.
 
 ---
 
@@ -153,27 +148,31 @@ Reflexion **не блокирует мерж** — работает после.
 ```
 ├── CLAUDE.md
 ├── README.md
-├── DEVELOPER.local.md           # генерится claim-developer.sh, .gitignored
 ├── docker-compose.yml
 ├── docker-compose.test.yml
 ├── deploy.sh
 ├── .env.example
+├── .claude-plugins.json         # требуемые плагины (superpowers, gsd, claude-mem, context-mode, context7, reflexion, github)
 ├── docs/
 │   ├── business-flows.md
 │   ├── tech-stack.md
 │   ├── features.md
 │   ├── architecture.md
 │   ├── changelog.md
-│   ├── intake.md                # из /intake
-│   ├── plan.md                  # из /decompose
 │   ├── contracts/               # Pydantic + сгенерённые OpenAPI/TS
-│   ├── specs/                   # спеки крупных фич
-│   └── onboarding/              # для людей
+│   └── specs/                   # спеки крупных фич
 ├── backend/                     # FastAPI
 ├── frontend/                    # Next.js
+├── playbooks/                   # уникальные для шаблона процедуры
+│   ├── 04-contracts.md          # shared zone
+│   ├── 12-isolated-development.md  # Mode B
+│   └── 13-integration-day.md
 ├── scripts/
+│   ├── init-project.sh
+│   ├── scaffold-module.sh
+│   ├── mock-mode.sh
+│   └── check-imports.sh         # pre-commit: запрет приватных межмодульных импортов
 └── .github/
-    ├── CODEOWNERS               # из /decompose
     └── workflows/
 ```
 
@@ -217,21 +216,21 @@ Reflexion **не блокирует мерж** — работает после.
 **Claude делает сам:**
 - Пересобирает контейнеры.
 - Запускает тесты.
-- Читает документацию через Context7, когда застрял.
+- Читает документацию через `context7`, когда застрял (§5).
 - Обновляет `docs/` после крупных фич.
 - Делает коммиты по подзадачам.
 - Делает `git pull && rebase`, `git push`, `gh pr create`, `gh pr merge --auto` (см. §16).
 
 **Claude спрашивает пользователя:**
 - Перед выбором между архитектурными вариантами (на этапе brainstorm).
-- После Reflexion — что из findings чинить.
-- Перед изменением общих зон (контракты, core, ui, docker-compose).
+- После reflexion — что из findings чинить.
+- Перед изменением общей зоны (контракты, core, ui, docker-compose).
 
 ---
 
 ## 14. Чек-лист перед сдачей крупной фичи
 
-- [ ] Пройден полный пайплайн (brainstorming → writing-plans → executing/subagent-driven → verification).
+- [ ] Пройден полный пайплайн (`brainstorming` → `writing-plans` → `executing-plans` или `dispatching-parallel-agents` → TDD → `verification-before-completion`).
 - [ ] Все тесты зелёные в Docker.
 - [ ] Integration-тесты покрывают все новые endpoint'ы.
 - [ ] Impact на связанные модули проверен.
@@ -239,28 +238,23 @@ Reflexion **не блокирует мерж** — работает после.
 - [ ] Business flow обновлён, если нужно.
 - [ ] Секреты не утекли в код.
 - [ ] `deploy.sh` обновлён, если нужно.
-- [ ] Reflexion запустится автоматически после мержа в main.
+- [ ] `reflexion:critique` запущен и findings обсуждены.
 
 ---
 
 ## 15. Multi-developer mode
 
-В этом репо работают несколько вайбкодеров параллельно. Каждый — в своей зоне.
+В этом репо работают несколько вайбкодеров параллельно. **Зон-ownership на уровне CODEOWNERS / pre-commit hook нет** — это сознательный отказ от жёсткого enforcement в пользу договорной дисциплины.
 
-### Перед ЛЮБЫМ Edit/Write проверь путь файла против `DEVELOPER.local.md`:
+### Базовая конвенция
 
-- **Своя зона** (`Мои слайсы`) → пиши свободно.
-- **Общая зона** (`Общие зоны (READ-ONLY)`) → НЕ пиши. Скажи: «нужен RFC-PR с аппрувом всех CODEOWNERS».
-- **Чужая зона** (`Чужие зоны`) → НЕ пиши. Скажи: «это зона Dev #N, создаю cross-zone-issue» (через `gh issue create --label cross-zone-request --assignee <owner>`).
+- Каждый Dev знает, какие модули его (договорённость в чате / в `docs/business-flows.md`).
+- В чужой модуль не пишешь без согласования с owner'ом. Хочешь? Создай GitHub-issue с assignee на него.
+- Изменения в общей зоне (`backend/app/shared/`, `backend/app/core/`, `frontend/components/ui/`, `frontend/components/layout/`, `frontend/app/globals.css`, `tailwind.config.ts`) — **только через RFC-PR** (см. §17), с явным approve остальных Dev'ов в чате/PR-комментах.
+- Конфликты разруливаются на еженедельном Integration Day (см. `playbooks/13-integration-day.md`).
 
-### Если `DEVELOPER.local.md` отсутствует
-Не начинай работу. Запусти onboarding-агента (`.claude/agents/onboarding.md`) — он спросит у пользователя, кто из Dev #N, и сам выполнит `./scripts/claim-developer.sh <N> <name>`.
-
-### Pre-commit hook
-`scripts/check-boundaries.sh` валит коммит при попытке записи в чужую зону. **Не пытайся обойти `--no-verify`** — это запрещено §12.
-
-### Cross-zone запрос
-Если для своей фичи нужно что-то в чужой зоне — попроси Claude «запроси у <имя_овнера> <что>». Claude создаст GitHub-issue (`gh issue create --label cross-zone-request --assignee <owner>`). Жди, не делай сам.
+### Что осталось как мягкий enforcement
+- `scripts/check-imports.sh` — pre-commit hook, валит коммит при попытке импорта приватных модулей друг у друга (`from app.profile.models import User` из `app/finances/` запрещено). Это правило об инкапсуляции модулей, а не о зонах. Не пытайся обойти `--no-verify`.
 
 ---
 
@@ -270,41 +264,39 @@ Reflexion **не блокирует мерж** — работает после.
 
 ### Словарь команд
 
-| Фраза человека | Действие (Claude выполняет напрямую через Bash/gh) |
+| Фраза человека | Действие |
 |---|---|
-| `что у нас?` | Сводный отчёт: `git status -sb`, `gh pr list --author @me --state open`, `gh issue list --label cross-zone-request --assignee @me`, `gh issue list --label reflexion-finding --assignee @me`, текущий WP из `docs/plan.md` |
-| `продолжаем` | Следующий WP из `docs/plan.md` через TDD цикл |
-| `отдавай` | Запуск агента `pr-checker`: pre-PR check → `git push` → `gh pr create` → `gh pr merge --auto --squash` |
+| `что у нас?` | `git status -sb`, `gh pr list --author @me --state open`, `gh issue list --assignee @me`, текущий план/Feature |
+| `продолжаем` | Следующая задача из плана через TDD цикл (`superpowers:writing-plans` если ещё нет, потом TDD) |
+| `отдавай` | `superpowers:verification-before-completion` → `git push` → `gh pr create` → `gh pr merge --auto --squash` |
 | `аппрув N` | `gh pr review --approve <N>` |
 | `стоп` | Прерви текущее действие, отчитайся |
 | `откати последний` | `git revert HEAD` (БЕЗ force) |
-| `запроси у <имя> <что>` | `gh issue create --title "[cross-zone] ..." --label cross-zone-request --assignee <owner>` (см. `playbooks/07-cross-zone.md`) |
-| `синк-апдейт` | Агрегат через `gh` для еженедельного созвона (см. `.claude/commands/sync.md`) |
+| `запроси у <имя> <что>` | `gh issue create --title "[<module>] ..." --assignee <owner>` |
 
 ### Что Claude делает автоматически (без спроса)
 
 - `git pull && git rebase main` — на старте сессии и перед PR.
 - `git add && git commit` — после успешных тестов.
 - `git push` — после каждого коммита в свою ветку.
-- `gh pr create` + `gh pr merge --auto --squash` — на «отдавай» или после завершения WP. Использовать агента `.claude/agents/pr-checker.md`.
+- `gh pr create` + `gh pr merge --auto --squash` — на «отдавай» или после завершения Feature.
 - Прогон тестов в Docker.
 - Фикс CI-фейла — ≤3 попытки, потом stop-rule (§5).
-- `Reflexion:critique` после мержа крупной фичи (через GitHub Action).
+- `reflexion:critique` после мержа крупной фичи.
 
 ### Что Claude НЕ делает без человека
 
 - Аппрув чужого PR (только по команде «аппрув N»).
 - Force-push.
-- Изменение `docs/contracts/` без RFC-PR (см. §17).
+- Изменение `backend/app/shared/`, `frontend/components/ui/`, `tailwind.config.ts` без RFC-PR (см. §17).
 - Удаление чужой ветки.
-- `gh pr merge` в обход auto-merge (только GitHub сам мержит).
-- Изменение `CODEOWNERS` / branch protection.
+- `gh pr merge` в обход auto-merge.
 
 ### При красном CI
 1. Анализируй вывод теста.
 2. Гипотеза → фикс → запуск.
 3. Если не помогло — ещё гипотеза → фикс → запуск.
-4. Если не помогло третий раз — **СТОП**. Применяй §5 (Context7 + формулировка). Дальше зови человека.
+4. Если не помогло третий раз — **СТОП**. `superpowers:systematic-debugging` + `context7`. Дальше зови человека.
 
 ---
 
@@ -315,17 +307,17 @@ Reflexion **не блокирует мерж** — работает после.
 ```
 backend/app/shared/        ← публичные Pydantic Read-схемы (UserRead, ProjectRead, ...),
                              enum'ы (Role, ProjectStatus), общие типы (PaginatedResponse, ErrorResponse).
-                             CODEOWNERS = ВСЕ. Менять только через RFC-PR.
-backend/app/core/          ← config, db, base. CODEOWNERS = ВСЕ.
-frontend/components/ui/    ← дизайн-система: Button, Input, Card, EmptyState, Skeleton, AppShell.
-                             CODEOWNERS = ВСЕ. Все модули используют ТОЛЬКО эти компоненты.
-frontend/components/layout/ ← AppShell с навигацией. CODEOWNERS = ВСЕ.
+                             RFC-PR при изменении.
+backend/app/core/          ← config, db, base. RFC-PR при изменении.
+frontend/components/ui/    ← дизайн-система: Button, Input, Card, EmptyState, Skeleton.
+                             Все модули используют ТОЛЬКО эти компоненты.
+frontend/components/layout/ ← AppShell с навигацией. RFC-PR при изменении.
 frontend/lib/api/          ← клиент API + автогенерённые TS-типы.
-frontend/app/globals.css   ← design tokens (цвета, типографика). CODEOWNERS = ВСЕ.
-tailwind.config.ts         ← токены. CODEOWNERS = ВСЕ.
+frontend/app/globals.css   ← design tokens (цвета, типографика). RFC-PR при изменении.
+tailwind.config.ts         ← токены. RFC-PR при изменении.
 ```
 
-### Owner / Readers модель для общих сущностей
+### Owner / Readers модель
 
 Каждая сущность в `backend/app/shared/schemas.py` имеет **одного owner-модуля** и любое число **reader-модулей**:
 
@@ -354,28 +346,26 @@ from app.profile._password import hash_password    # private util (_xxx)
 from app.profile.api import router                 # api.* импортируется только в main.py
 ```
 
-`scripts/check-imports.sh` (часть pre-commit hook) валит коммит при попытке такого импорта.
+`scripts/check-imports.sh` (pre-commit) валит коммит при таком импорте.
 
 ### Когда менять общую зону
 
-- На шаге `/contracts` (первичная фиксация после `/decompose`).
-- На шаге `/module-init` (когда новый модуль публикует свои Read-схемы).
-- Через **RFC-PR**: отдельный PR только с изменением общей зоны, тегаются все CODEOWNERS общей зоны, требуется аппрув всех.
+- При первичной фиксации (см. `playbooks/04-contracts.md`).
+- Когда новый модуль публикует свою Read-схему.
+- Только через **RFC-PR**: отдельный PR только с изменением общей зоны, в чате/PR-комменте просим approve остальных Dev'ов.
 
 ### Если фича требует изменить контракт или общий компонент
 
 Остановись и спроси пользователя:
 > «Эта фича меняет публичную форму X в общей зоне (схема / UI-компонент / дизайн-токен). Создаём RFC-PR? (y/n)»
 
-Если `y` — создай отдельный PR только с этим изменением, тегни всех CODEOWNERS общей зоны. Дождись мержа. Только тогда продолжай фичу.
+Если `y` — создай отдельный PR только с этим изменением, попроси approve. Дождись мержа. Только тогда продолжай фичу.
 
 ### Никогда не меняй общую зону «попутно»
 
 Даже если кажется маленьким. Один контракт / один UI-компонент = один RFC-PR.
 
 ### Cross-module запрос данных (для reader-модулей)
-
-Если фича твоего модуля нуждается в данных другого модуля:
 
 ```python
 # В backend/app/finances/service.py (Dev #2):
@@ -387,18 +377,17 @@ async def calc_payout(user_id, db):
     return UserRead.model_validate(user)
 ```
 
-Если нужного метода в чужом сервисе нет — **cross-zone request** к owner'у:
-> «запроси у Стаса добавить get_users_by_role в profile.service»
+Если нужного метода в чужом сервисе нет — обычный GitHub-issue с assignee на owner'а.
 
 ### Дизайн-конвенция (фронт)
 
 - **Только токены, не хардкоды.** `bg-primary` ✅, `bg-[#0EA5E9]` ❌.
 - **Только компоненты из `components/ui/`**, не свои Button/Input/Card. Если нужного нет — RFC-PR в общую зону.
-- **AppShell** оборачивает все страницы (через `app/layout.tsx`). Менять навигацию (добавить/убрать ссылку на модуль) — RFC-PR.
+- **AppShell** оборачивает все страницы (через `app/layout.tsx`). Менять навигацию — RFC-PR.
 
 ### CRUD convention (бэк)
 
-Все CRUD-эндпоинты пишутся по одному шаблону (см. `backend/app/profile/api.py` и `backend/app/projects/api.py` как референс):
+Все CRUD-эндпоинты пишутся по одному шаблону:
 
 ```
 POST   /<entity>           201, body, returns <Entity>Read
@@ -410,7 +399,7 @@ DELETE /<entity>/{id}      204 | 404
 
 Все ошибки → `ErrorResponse {code, message, details}`. Все списки → `PaginatedResponse {items, total, page, page_size}`.
 
-Для быстрого старта нового модуля — `./scripts/scaffold-module.sh <module> <Entity>` создаёт скелет (models / service / api / routes).
+Для быстрого старта нового модуля — `./scripts/scaffold-module.sh <module> <Entity>` создаёт скелет.
 
 ---
 
@@ -418,40 +407,27 @@ DELETE /<entity>/{id}      204 | 404
 
 При запуске Claude в репозитории, созданном из шаблона:
 
-### Если это первый запуск (нет `.claude/.session-started`)
-SessionStart-hook запускает агента `onboarding`. Он:
+### Если репо новый (нет `docs/architecture.md` или похожего якоря)
+Не предлагай задачи. Запусти `gsd-new-project` — он соберёт глубокий контекст и создаст PROJECT.md / ROADMAP.md.
 
-- Представляется.
-- Если есть `DEVELOPER.local.md` — показывает роль («Ты Dev #N, твоя зона — X»).
-- Если нет — предлагает `./scripts/claim-developer.sh N <name>` или сообщает «не вижу claim, ты создатель проекта?».
-- Показывает статус ветки и открытых PR'ов.
-- Спрашивает «что делаем».
-- Создаёт `.claude/.session-started`.
-
-### Если репо новый (нет `docs/spec.md`)
-Не предлагай WP. Запусти конвейер:
-
-1. Сначала `superpowers:brainstorming` для intake.
-2. Потом `superpowers:writing-plans` для spec + plan.
-3. Потом `/decompose` для распределения на N девов.
-4. Потом `/contracts` для фиксации Pydantic-моделей.
-5. Потом `/skeleton` для каркаса с зелёным CI.
-
-Следуй `playbooks/01..05` шаг за шагом.
+### Если репо живой
+- Прочитай `docs/changelog.md` (если есть) — что менялось последним.
+- `git status -sb` + `gh pr list --author @me`.
+- Спроси «что делаем». Если человек говорит «продолжаем» — следующая Feature из текущего плана.
 
 ---
 
 ## 19. Стиль работы Dev'а — Mode A vs Mode B
 
-В этом репо два разрешённых стиля работы. Выбор — по размеру задачи.
+Два разрешённых стиля. Выбор — по размеру задачи.
 
-### Mode A — PR-flow (текущий по умолчанию)
+### Mode A — PR-flow (по умолчанию)
 Каждая Feature → PR → auto-merge в main. Подходит для:
 - Тривиальных sub-task (≤10 строк, фикс)
 - Средних Features (день работы)
 - Любого изменения в общую зону (RFC-PR — всегда Mode A)
 
-См. `playbooks/06-parallel-work.md` и `11-feature-execution.md`.
+Цикл: `superpowers:writing-plans` → `superpowers:test-driven-development` → `superpowers:verification-before-completion` → PR.
 
 ### Mode B — isolated development (длинная ветка)
 Dev уходит в `dev/<N>/<submodule>` на дни/недели. Один большой PR в конце. Подходит для:
@@ -474,8 +450,8 @@ Dev уходит в `dev/<N>/<submodule>` на дни/недели. Один б�
 ### Mock-режим (Mode B)
 
 В каждом модуле, который **читает** данные других модулей, должен быть:
-- `app/<module>/_mocks.py` — mock-функции с теми же сигнатурами что и реальные сервисы
-- `app/<module>/deps.py` — dependency injection переключатель `get_<entity>_lookup()`
+- `app/<module>/_mocks.py` — mock-функции с теми же сигнатурами, что и реальные сервисы.
+- `app/<module>/deps.py` — dependency injection переключатель `get_<entity>_lookup()`.
 
 Пример: `reference/backend/app/finances/`.
 
@@ -484,10 +460,10 @@ Dev уходит в `dev/<N>/<submodule>` на дни/недели. Один б�
 ### Integration Day (раз в неделю)
 
 Каждую пятницу команда собирается:
-1. Готовые PR'ы из Mode B мержим в main
-2. Auto-deploy на staging
-3. End-to-end smoke втроём
-4. Договорённости на следующую неделю
+1. Готовые PR'ы из Mode B мержим в main.
+2. Auto-deploy на staging.
+3. End-to-end smoke втроём.
+4. Договорённости на следующую неделю.
 
 См. `playbooks/13-integration-day.md`.
 
@@ -502,11 +478,19 @@ Dev уходит в `dev/<N>/<submodule>` на дни/недели. Один б�
 ### Что выбирает Claude автоматически
 
 Когда человек говорит «продолжаем» / «погнали»:
-1. Прочитать `docs/plan.md`, найти текущую Feature
-2. Если Submodule **только начинается** или **ещё в разработке**, и спросить человека: «Это часть длинного Submodule. Включить Mode B (длинная ветка + моки) или работать в Mode A (PR в main каждой Feature)?»
+1. Прочитать план, найти текущую Feature.
+2. Если Submodule **только начинается** или **ещё в разработке**, спросить: «Это часть длинного Submodule. Включить Mode B (длинная ветка + моки) или работать в Mode A (PR в main каждой Feature)?»
 3. Действовать по выбору.
 
 Если человек явно сказал «работаем в Mode B» / «уходим в свою пещеру» — переключиться без вопросов.
+
+---
+
+## 20. Контекст и память
+
+- **Большой вывод (тесты, логи, git log, find)** — через `mcp__plugin_context-mode_context-mode__ctx_batch_execute` или `ctx_execute`, не через Bash напрямую. Так raw output не съедает контекст.
+- **Память между сессиями** — `claude-mem:mem-search` («это уже решали?», «как делали в прошлый раз?»).
+- **Документация библиотек** — `mcp__plugin_context7_context7__resolve-library-id` + `query-docs`. Не выдумывать API из памяти.
 
 ---
 

@@ -1,31 +1,41 @@
 {
   "$schema": "https://docs.anthropic.com/claude-code/plugins.json",
-  "description": "Plugins required for VibecoSwaga workflow. Onboarding agent prompts to install missing ones at first session. If automatic install fails, see docs/onboarding/install.md.",
+  "description": "Plugins this template defers to. Install before starting work in the repo. See CLAUDE.md §1 for which skill is used at which step.",
   "plugins": [
     {
       "name": "superpowers",
       "required": true,
-      "purpose": "Brainstorming, writing-plans, executing-plans, TDD, debugging, verification, dispatching-parallel-agents"
+      "purpose": "brainstorming, writing-plans, executing-plans, TDD, dispatching-parallel-agents, verification-before-completion, systematic-debugging"
+    },
+    {
+      "name": "gsd",
+      "required": true,
+      "purpose": "phase lifecycle (gsd-new-project, gsd-new-milestone, gsd-spec-phase, gsd-plan-phase, gsd-execute-phase, gsd-verify-work, gsd-ship)"
     },
     {
       "name": "claude-mem",
       "required": true,
-      "purpose": "Memory between sessions"
+      "purpose": "memory between sessions (mem-search, make-plan, do)"
+    },
+    {
+      "name": "context-mode",
+      "required": true,
+      "purpose": "context-window protection — ctx_batch_execute / ctx_execute / ctx_search instead of raw Bash for large outputs"
     },
     {
       "name": "context7",
       "required": true,
-      "purpose": "Up-to-date library docs (used in §5 stop-rule)"
+      "purpose": "up-to-date library docs (CLAUDE.md §5 stop-rule)"
     },
     {
       "name": "reflexion",
       "required": true,
-      "purpose": "Critique after large features (§8)"
+      "purpose": "critique after large features (CLAUDE.md §8)"
     },
     {
       "name": "github",
       "required": true,
-      "purpose": "Auto-pilot git/gh operations (§16)"
+      "purpose": "git/gh operations from chat (CLAUDE.md §16 auto-pilot)"
     }
   ]
 }

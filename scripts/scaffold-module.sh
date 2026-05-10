@@ -13,7 +13,7 @@
 #     page.tsx, [id]/page.tsx
 #
 # Не пишет публичную Read-схему в shared/ — это RFC-PR (см. CLAUDE.md §17).
-# Запускается из /module-init после module-decompose, до начала features.
+# Запускается после того, как для модуля написан spec и план.
 
 set -euo pipefail
 
@@ -161,4 +161,4 @@ echo "  1. Заполни backend/app/$MODULE/models.py — поля сущно�
 echo "  2. Создай RFC-PR с публичной ${ENTITY}Read в backend/app/shared/schemas.py"
 echo "  3. После мержа RFC-PR — добавь импорт в api.py и регистрируй роутер в main.py"
 echo "  4. alembic revision --autogenerate, alembic upgrade head"
-echo "  5. Феатуры через playbooks/11-feature-execution.md"
+echo "  5. Фичи — через superpowers:writing-plans + superpowers:test-driven-development (см. CLAUDE.md §1)"

@@ -11,7 +11,7 @@
 | **Большой Submodule (неделя+)** | **B** — длинная ветка | один PR в конце |
 | **Целый Module** | **B** — длинная ветка | один большой PR |
 
-Плейбук про **Mode B**. Для Mode A — `playbook 06-parallel-work.md`.
+Плейбук про **Mode B**. Для Mode A (PR-flow) — обычный цикл `superpowers:writing-plans` → TDD → `superpowers:verification-before-completion` → PR.
 
 ## Конфликт с CLAUDE.md §12 (git-гигиена)?
 
@@ -19,9 +19,9 @@ CLAUDE.md говорит «коммит после каждой завершён
 
 ## Предусловия
 
-1. Foundation готов и зафиксирован (см. `playbook 05-foundation.md`).
-2. Контракты твоего модуля в `shared/` зафиксированы (см. `playbook 03b-module-decomposition.md`, шаг 4 — RFC-PR с контрактами).
-3. Cross-module зависимости явно прописаны в `docs/specs/module-<slug>.md` секция «Cross-zone зависимости».
+1. Foundation готов и зафиксирован (auth-base, shared/, AppShell, design tokens — см. `playbook 04-contracts.md`).
+2. Контракты твоего модуля в `shared/` зафиксированы отдельным RFC-PR.
+3. Cross-module зависимости явно прописаны в spec модуля (раздел «Cross-zone зависимости»).
 
 ## Шаги
 
@@ -47,10 +47,7 @@ git checkout -b dev/<N>/<submodule>      # например dev/2/billing-subscr
 
 ### 3. Локальный цикл разработки
 
-Работай как обычно — `playbook 11-feature-execution.md` для каждой Feature внутри Submodule:
-- TDD (RED → GREEN → REFACTOR → COMMIT)
-- Коммитишь в `dev/<N>/<submodule>` после каждой Feature
-- **НЕ создавай PR в main** на каждую Feature — батчем потом
+Работай как обычно — для каждой Feature: `superpowers:writing-plans` → `superpowers:test-driven-development` → коммит в `dev/<N>/<submodule>`. **НЕ создавай PR в main** на каждую Feature — батчем потом.
 
 ### 4. Регулярная синхронизация с main (раз в день/два)
 
@@ -61,7 +58,7 @@ git fetch origin main
 git rebase origin/main
 ```
 
-Если конфликт — `playbook 08-merge-conflict.md`. На свежем foundation это редко, потому что общая зона стабильна.
+Если конфликт — разруливаешь руками (или зови `general-purpose` агента с конкретным diff'ом). На свежем foundation это редко, потому что общая зона стабильна.
 
 ### 5. Contract tests (запускай регулярно)
 

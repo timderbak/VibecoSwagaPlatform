@@ -1,18 +1,5 @@
 {
   "$schema": "https://docs.anthropic.com/claude-code/settings.json",
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'if [ ! -f \".claude/.session-started\" ]; then echo \"# VibecoSwaga onboarding active. Agent .claude/agents/onboarding.md will greet the user.\"; fi'"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "Bash(docker compose:*)",

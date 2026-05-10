@@ -3,24 +3,21 @@
 Цель: зафиксировать **публичные контракты общей зоны** — Pydantic Read-схемы общих сущностей, общие enum'ы, базовые типы ответов.
 
 ## Когда запускается
-- После `playbook 03-decomposition.md`.
-- На этом шаге фиксируется минимум: User + базовые типы. Остальные общие сущности (Project, Subscription и т.п.) добавляются позже на module-init соответствующего модуля.
-
-## Skill
-Кастомная команда `.claude/commands/contracts.md`, агент `contracts-generator`.
+- После того как milestone расписан на модули (через `gsd-new-milestone` или брейнсторм).
+- На этом шаге фиксируется минимум: User + базовые типы. Остальные общие сущности (Project, Subscription и т.п.) добавляются позже, когда соответствующий модуль публикует свою Read-схему.
 
 ## Концепт «общая зона vs модуль-private»
 
 ```
 backend/app/
-├── shared/                  ← ОБЩАЯ ЗОНА (CODEOWNERS = все)
+├── shared/                  ← ОБЩАЯ ЗОНА (RFC-PR при изменении)
 │   ├── schemas.py           ← UserRead, ProjectRead, ... (Pydantic Read)
 │   ├── enums.py             ← Role, ProjectStatus, ...
 │   └── _common.py           ← PaginatedResponse, ErrorResponse
-├── core/                    ← ОБЩАЯ ЗОНА (CODEOWNERS = все)
+├── core/                    ← ОБЩАЯ ЗОНА (RFC-PR при изменении)
 │   ├── config.py
 │   └── db.py
-├── profile/                 ← Module-private (Dev #N)
+├── profile/                 ← Module-private (owner-Dev)
 │   ├── models.py            ← SQLAlchemy User
 │   ├── service.py           ← public service API модуля
 │   └── api.py               ← endpoints
@@ -84,7 +81,7 @@ from app.shared.schemas import UserRead
 
 ### TS-типы
 
-Они появятся после foundation (когда auth-эндпоинты заработают). Запустить `scripts/gen-types.sh` после `playbook 05-foundation.md`.
+Они появятся после foundation (когда auth-эндпоинты заработают). Запустить `scripts/gen-types.sh` после поднятия foundation.
 
 ## Когда сущность из модуля становится общей
 
@@ -97,13 +94,13 @@ from app.shared.schemas import UserRead
 | `MoneyEntry`          | `app.finances.api.MoneyEntryRead` (приватный) | никто не читает кроме Finances |
 | `AuditLog`            | `app.logs.api.AuditLogRead` (приватный) | только Logs показывает |
 
-Решает owner-модуль на module-init: **«какую часть моего модуля видят другие?»**
+Решает owner-модуль перед началом фич: **«какую часть моего модуля видят другие?»**
 
 ## Процесс изменения общей зоны
 
 После первичной фиксации **`shared/` это территория RFC-PR**:
 1. Owner создаёт PR **только с изменением `shared/schemas.py`** (+ при необходимости миграция).
-2. Тегаются все CODEOWNERS общей зоны.
+2. Reviewers — все остальные Dev. Зовём явно (issue-комментом, чатом).
 3. Аппрув всех → мерж.
 4. Reader-модули могут использовать новое поле/схему.
 
@@ -112,4 +109,4 @@ from app.shared.schemas import UserRead
 ## После завершения
 
 1. Закоммить `backend/app/shared/*` (commit: `feat: project base contracts (User, common types, enums)`).
-2. Сказать: «Базовые контракты зафиксированы. Иду в `/foundation`.»
+2. Дальше — поднимать foundation (auth-base, AppShell, design tokens) одним PR. Этим занимается тот же Dev, который зафиксировал контракты.
