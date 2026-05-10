@@ -21,18 +21,35 @@ gh auth login
 
 ```bash
 # Внутри Claude Code:
-/plugin install superpowers@claude-plugins-official
-/plugin install context7@claude-plugins-official
-/plugin install github@claude-plugins-official
-/plugin install reflexion@context-engineering-kit
-/plugin install claude-mem@thedotmack
+/plugin install superpowers@claude-plugins-official       # дисциплина процесса (TDD, brainstorm, plans, debug)
+/plugin install frontend-design@claude-plugins-official    # генерация дизайн-системы и UI-кода
+/plugin install context7@claude-plugins-official           # свежие доки библиотек
+/plugin install github@claude-plugins-official             # git/gh из чата
+/plugin install reflexion@context-engineering-kit          # критика после крупных фич
+/plugin install claude-mem@thedotmack                      # память между сессиями
 /plugin marketplace add mksglu/context-mode
-/plugin install context-mode@context-mode
+/plugin install context-mode@context-mode                  # экономия контекстного окна
 /reload-plugins
 
+# Опционально — для глубокой UI/UX проработки:
+/plugin install ui-ux-pro-max@<marketplace>                # 67 стилей, 96 палитр, 57 шрифтовых пар
+
 # В терминале (GSD — npm-утилита, не плагин):
-npx get-shit-done-cc --claude --global
+npx get-shit-done-cc --claude --global                     # фазовый workflow проекта
 ```
+
+**Кратко зачем какой:**
+
+| Плагин | Когда используется |
+|---|---|
+| `superpowers` | Любая средняя/крупная фича: brainstorm → plan → TDD → verify |
+| `frontend-design` | Foundation: генерация дизайн-системы; любая UI-задача |
+| `gsd` (npx) | Управление фазами проекта, ROADMAP, parallel work |
+| `context7` | Когда упёрся в баг библиотеки — читать свежие доки |
+| `reflexion` | После крупной фичи — multi-perspective критика |
+| `claude-mem` | «Это уже решали?», «как делали в прошлый раз?» |
+| `context-mode` | Автоматически перехватывает большие выводы команд |
+| `github` | Все git/gh операции из чата |
 
 ---
 
@@ -61,8 +78,9 @@ claude
 Дальше Claude:
 - Прочитает `DEVELOPERS.md`, `.planning/PROJECT.md`, `docs/business-flows.md`.
 - Если `.planning/PROJECT.md` ещё не заполнен — запустит `/gsd-new-project` для глубокого интервью.
+- **Сгенерирует дизайн-систему** через `frontend-design` (или `ui-ux-pro-max`): палитра, типографика, базовые компоненты, design tokens в `tailwind.config.ts` + `globals.css`. Это часть foundation и делается **до** того, как кодеры разъедутся по модулям — иначе каждый напишет свой Button.
 - Зафиксирует базовые контракты (см. `playbooks/04-contracts.md`).
-- Поднимет foundation (auth-base, AppShell, design tokens) одним PR.
+- Поднимет foundation (auth-base, AppShell, design system, базовые UI-компоненты) одним PR.
 
 Дальше каждый Dev берёт свой модуль и идёт в Module-level (см. `CLAUDE.md §1`).
 
@@ -92,10 +110,11 @@ Claude вызовет `/gsd-progress` — посмотрит ветку, отк�
 | `что у нас?` | `/gsd-progress` — ветка, PR'ы, текущая фаза, незавершённые задачи |
 | `продолжаем` | следующая Feature в текущей фазе через TDD |
 | `отдавай` | `verification-before-completion` → push → PR → auto-merge; для крупной фазы — `/gsd-ship` |
-| `аппрув N` | `gh pr review --approve <N>` |
 | `стоп` | прервёт текущее действие |
 | `откати последний` | `git revert HEAD`; для отката всей фазы — `/gsd-undo` |
-| `запроси у X Y` | создаст GitHub-issue с assignee на коллегу |
+| `запроси у X Y` | создаст GitHub-issue с assignee на коллегу (если нужны их данные) |
+
+**Каждый кодер автономен:** свой PR создаёт сам и сам же мержит через auto-merge (нужен только зелёный CI, не approve коллег). Cross-approve между кодерами не используется — каждый отвечает за свою зону.
 
 См. `CLAUDE.md §16`.
 
@@ -150,14 +169,20 @@ Claude вызовет `/gsd-progress` — посмотрит ветку, отк�
 
 ---
 
-## 6. Multi-developer режим без CODEOWNERS
+## 6. Multi-developer режим — автономия в своей зоне
 
-В шаблоне **нет CODEOWNERS** и pre-commit-хука на зоны. Договорная дисциплина:
+В шаблоне **нет CODEOWNERS, нет required reviewers, нет cross-approve.** Каждый кодер автономен:
+- Работает в своей ветке (`dev/<N>/<slice>`).
+- Открывает свой PR.
+- Сам же мержит через auto-merge — нужен только **зелёный CI**.
+- Cross-approve между кодерами **не используется**: коллеги не блокируют друг друга.
+
+Договорная дисциплина (без блокировок):
 
 - **Источник правды по зонам — `DEVELOPERS.md`.** Каждый Dev знает свои модули.
-- В чужой модуль — через GitHub-issue с assignee на owner'а.
-- Изменения в общей зоне (`backend/app/shared/`, `frontend/components/ui/`, `tailwind.config.ts`, ...) — только через **RFC-PR** с approve остальных Dev'ов.
-- Конфликты разруливаются на еженедельном Integration Day (`playbooks/13-integration-day.md`).
+- В чужой модуль — через GitHub-issue с assignee на owner'а: «Нужен метод X в твоём сервисе».
+- Изменения в общей зоне (`backend/app/shared/`, `frontend/components/ui/`, `tailwind.config.ts`, ...) — отдельный **RFC-PR** (не смешивать с фичей). Аппрувить обязательно не нужно, но **уведомить команду в чате/комментах** — да.
+- Раз в неделю — **Integration Day** (`playbooks/13-integration-day.md`): синхронизация Mode B-веток, smoke-тест, ретро.
 - Единственный мягкий enforcement — `scripts/check-imports.sh` запрещает импорт приватных модулей друг у друга.
 
 См. `CLAUDE.md §15` и `§17`.

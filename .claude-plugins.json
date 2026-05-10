@@ -36,6 +36,16 @@
       "name": "github",
       "required": true,
       "purpose": "git/gh operations from chat (CLAUDE.md §16 auto-pilot)"
+    },
+    {
+      "name": "frontend-design",
+      "required": true,
+      "purpose": "design-system generation, polished UI components, distinctive frontend code (CLAUDE.md §17 design-zone)"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "required": false,
+      "purpose": "optional: 67 styles, 96 palettes, 57 font pairings, 25 chart types — for richer UI/UX exploration when frontend-design is not enough"
     }
   ]
 }
