@@ -52,27 +52,21 @@ npx get-shit-done-cc --claude --global                     # фазовый work
 # 2. В терминале:
 git clone git@github.com:<you>/<your-project>.git
 cd <your-project>
-
-# 3. Распакуй reference/ в корень + создай docs/ и .planning/ из шаблонов:
-./scripts/init-project.sh fastapi   # или 'blank' если свой стек
-
-# 4. Запусти Claude и скажи «погнали»:
 claude
-> погнали
+> хочу <твоя идея в свободной форме>
 ```
 
-Дальше Claude **не позволит начать фичи, пока не закончен init**. Init — одна большая GSD-фаза «Foundation»:
-1. `gsd-new-project` — глубокое интервью → `.planning/PROJECT.md` + `ROADMAP.md`.
-2. `DEVELOPERS.md` — распределение модулей между dev1/dev2/dev3 (единственное назначение файла).
-3. `docs/business-flows.md` — golden path.
-4. `gsd-spec-phase` + `gsd-plan-phase` для Foundation.
-5. `gsd-execute-phase`:
-   - дизайн-система через `frontend-design`,
-   - shared контракты (`UserRead`, базовые типы),
-   - auth-base, AppShell, базовые UI-компоненты.
-6. Один большой PR «foundation готов».
+**Всё. Дальше Claude всё делает сам:**
+- Распакует `reference/` через `./scripts/init-project.sh fastapi`.
+- Запустит `gsd-new-project` — интервью на основе того, что ты уже сказал, дозадаст недостающее.
+- Создаст `.planning/PROJECT.md`, `ROADMAP.md`, `DEVELOPERS.md`, `docs/business-flows.md`.
+- Запустит Foundation-фазу через `gsd-spec-phase` → `gsd-plan-phase` → `gsd-execute-phase`:
+  - дизайн-система через `frontend-design`,
+  - shared контракты (`UserRead`, базовые типы),
+  - auth-base, AppShell, базовые UI-компоненты.
+- Откроет один большой PR «foundation готов» когда ты скажешь «отдавай».
 
-После мержа каждый Dev клонирует, читает свою строку в `DEVELOPERS.md` и сразу идёт в свой модуль. Никаких дополнительных настроек.
+После мержа каждый Dev клонирует, читает свою строку в `DEVELOPERS.md` и сразу идёт в свой модуль. Никаких ручных команд от человека.
 
 ---
 

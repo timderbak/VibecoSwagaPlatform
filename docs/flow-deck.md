@@ -216,11 +216,14 @@ Cross-approve выкинут — каждый сам мержит свой PR ч
 
 # Дальше
 
-1. Поставь плагины (см. README §1)
-2. `./scripts/init-project.sh fastapi`
-3. `claude` → `погнали`
-4. Жирный init → команда автономно кодит
+1. На GitHub: «Use this template» → свой репо
+2. `git clone <repo>` → `cd <repo>` → `claude`
+3. Скажи: «хочу <твоя идея>»
+4. Claude сам всё делает: init-project.sh, gsd-new-project, Foundation, PR
 
 <br>
 
-<span class="small">CLAUDE.md — полные правила. playbooks/04-contracts.md — shared zone.</span>
+<span class="accent">Никаких ручных команд от человека.</span>
+
+<span class="small">Только при первом запуске — поставить плагины (см. README §1).<br>
+CLAUDE.md — полные правила. playbooks/04-contracts.md — shared zone.</span>
