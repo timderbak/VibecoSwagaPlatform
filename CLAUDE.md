@@ -106,8 +106,9 @@ Init не пропускается, не ускоряется, не разбив
 
 Если три раза подряд не можешь решить одну проблему:
 1. Остановись. Не пробуй четвёртый раз наугад.
-2. `mcp__plugin_context7_context7__resolve-library-id` + `query-docs` (или `superpowers:systematic-debugging`).
-3. Сформулируй в чате: «застрял на X, прочитал Y, гипотеза Z».
+2. **Архитектурная проблема** (что выбрать, как масштабировать, где узкое место) → сначала `docs/system-design-patterns.md` (шпаргалка по Alex Xu, Vol. 1), потом `context7` если нужны детали.
+3. **Баг библиотеки** → `mcp__plugin_context7_context7__resolve-library-id` + `query-docs`, или `superpowers:systematic-debugging`.
+4. Сформулируй в чате: «застрял на X, прочитал Y, гипотеза Z».
 
 В auto-pilot режиме — сам выходи из retry-цикла после 3-го фейла и зови человека.
 
