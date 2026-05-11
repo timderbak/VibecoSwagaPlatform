@@ -4,6 +4,8 @@
 
 Шаблон **не пишет своих скиллов и слэш-команд**. Workflow держится на двух плагинах: **GSD** для фазовой структуры проекта и **superpowers** для дисциплины одной задачи. Никакого CODEOWNERS, RFC-PR, cross-approve, mock-layer, Integration Day — только то, что реально нужно команде.
 
+> 📖 Как GSD и superpowers сосуществуют, кто реально пишет код, когда какой брать — см. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md).
+
 ---
 
 ## 1. Что нужно установить (один раз)

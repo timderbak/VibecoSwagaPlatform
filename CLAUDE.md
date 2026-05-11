@@ -8,6 +8,8 @@
 
 Дополнительно: `frontend-design` для дизайн-системы, `claude-mem` для памяти, `context7` для свежих доков, `context-mode` для больших выводов, `github` для git-операций.
 
+> 📖 Детальное разделение ответственности GSD vs superpowers, кто реально пишет код, когда какой брать — см. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md). Этот файл — обязательное чтение для Claude в каждой новой сессии.
+
 ---
 
 ## 0. Язык
