@@ -1,142 +1,110 @@
 # VibecoSwagaTemplate
 
-Шаблон-репозиторий для команды из 2-3 вайбкодеров. Жирный init на GSD + минимум формализма после.
+Шаблон-репозиторий для **соло-вайбкодера**. Внутри только то, что нужно чтобы новый проект сразу стартовал с хорошими привычками:
 
-Шаблон **не пишет своих скиллов и слэш-команд**. Workflow держится на двух плагинах: **GSD** для фазовой структуры проекта и **superpowers** для дисциплины одной задачи. Никакого CODEOWNERS, RFC-PR, cross-approve, mock-layer, Integration Day — только то, что реально нужно команде.
+- 🧠 **CLAUDE.md** на базе четырёх принципов Karpathy против типичных болезней LLM-кода + локальные практики.
+- 🔌 **Готовый набор плагинов** Claude Code (superpowers, GSD, claude-mem, context7, context-mode, frontend-design, reflexion, github, supabase).
+- 📚 **Шпаргалка по system design** под рукой (`docs/system-design-patterns.md`).
+- 🤖 **Auto-pilot фразы** — пользователь печатает «отдавай», Claude делает push + PR + auto-merge.
 
-> 📖 Как GSD и superpowers сосуществуют, кто реально пишет код, когда какой брать — см. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md).
-
----
-
-## 1. Что нужно установить (один раз)
-
-### CLI и инструменты
-```bash
-brew install git gh docker
-gh auth login
-# Claude Code: https://claude.com/claude-code
-```
-
-### Плагины Claude Code
-```bash
-# Внутри Claude Code:
-/plugin install superpowers@claude-plugins-official       # дисциплина процесса (TDD, brainstorm, plans, debug)
-/plugin install frontend-design@claude-plugins-official    # генерация дизайн-системы и UI-кода
-/plugin install context7@claude-plugins-official           # свежие доки библиотек
-/plugin install github@claude-plugins-official             # git/gh из чата
-/plugin install claude-mem@thedotmack                      # память между сессиями
-/plugin install reflexion@context-engineering-kit          # обязательная критика после крупных фич
-/plugin marketplace add mksglu/context-mode
-/plugin install context-mode@context-mode                  # экономия контекстного окна
-/reload-plugins
-
-# В терминале (GSD — npm-утилита, не плагин):
-npx get-shit-done-cc --claude --global                     # фазовый workflow проекта
-```
-
-| Плагин | Когда |
-|---|---|
-| `gsd` (npx) | Жирный init, фазы, ROADMAP, артефакты в `.planning/` |
-| `superpowers` | Дисциплина одной задачи: brainstorm → writing-plans → TDD |
-| `frontend-design` | Foundation: генерация дизайн-системы; любой UI |
-| `context7` | Когда упёрся в баг библиотеки — читать свежие доки |
-| `claude-mem` | «Это уже решали?», «как делали в прошлый раз?» |
-| `reflexion` | **Обязательная** критика после крупной фичи — единственная обязательная проверка качества |
-| `context-mode` | Автоматически перехватывает большие выводы команд |
-| `github` | Все git/gh операции из чата |
+**Никакого кастомного кода, никаких своих скиллов, никакой командной координации.** Шаблон ничего не пишет за тебя — он только настраивает Claude Code так, чтобы дальше с ним было приятно работать.
 
 ---
 
-## 2. Старт нового проекта
+## Как начать новый проект
 
 ```bash
-# 1. На GitHub: жми "Use this template" → создаёшь свой репо.
-# 2. В терминале:
+# 1. На GitHub: жми "Use this template" → создаёшь свой репо
 git clone git@github.com:<you>/<your-project>.git
 cd <your-project>
+
+# 2. Включи плагины глобально (один раз на машину; требует jq)
+./scripts/install-plugins.sh
+# Скрипт допишет enabledPlugins в ~/.claude/settings.json (с бэкапом).
+# Печатает один раз список marketplaces для регистрации через
+# /plugin marketplace add внутри `claude` — это нужно сделать вручную
+# один раз, потом плагины подтянутся сами на старте claude.
+
+# 3. Запусти Claude и опиши идею
 claude
-> хочу <твоя идея в свободной форме>
+> хочу маркетплейс лимитированных кроссовок с auth через Supabase и оплатой Stripe
 ```
 
-**Всё. Дальше Claude всё делает сам:**
-- Распакует `reference/` через `./scripts/init-project.sh fastapi`.
-- Запустит `gsd-new-project` — интервью на основе того, что ты уже сказал, дозадаст недостающее.
-- Создаст `.planning/PROJECT.md`, `ROADMAP.md`, `DEVELOPERS.md`, `docs/business-flows.md`.
-- Запустит Foundation-фазу через `gsd-spec-phase` → `gsd-plan-phase` → `gsd-execute-phase`:
-  - дизайн-система через `frontend-design`,
-  - shared контракты (`UserRead`, базовые типы),
-  - auth-base, AppShell, базовые UI-компоненты.
-- Откроет один большой PR «foundation готов» когда ты скажешь «отдавай».
+Дальше Claude:
+- Прочитает CLAUDE.md и поймёт правила работы.
+- Если идея с UI — сначала набросает HTML-мокап через `frontend-design` / `gsd-sketch`, обсудит с тобой, и только потом полезет в бэк (см. CLAUDE.md §3).
+- Если идея явно многофазная — предложит `gsd-new-project` (структура `.planning/PROJECT.md` + ROADMAP).
+- Если фича на один заход — сразу через `superpowers:brainstorming` → `writing-plans` → `test-driven-development`.
 
-После мержа каждый Dev клонирует, читает свою строку в `DEVELOPERS.md` и сразу идёт в свой модуль. Никаких ручных команд от человека.
+Стек **не предписан**. Выбираешь сам или просишь Claude рекомендовать под задачу. Шаблон стек-нейтрален.
 
 ---
 
-## 3. После init — каждый автономно
+## Какие плагины и зачем
 
-Каждый Dev:
-1. Читает свою строку в `DEVELOPERS.md` → находит свой модуль.
-2. Для модуля: `gsd-new-milestone` / `gsd-spec-phase` → `gsd-plan-phase`.
-3. Для каждой фичи: либо GSD-цикл (`gsd-spec-phase` → `gsd-plan-phase` → `gsd-execute-phase`), либо `superpowers:writing-plans` + TDD.
-4. PR → auto-merge когда готов.
-
-Никакого cross-approve, никакого CODEOWNERS, никакой обязательной verification-фазы перед мержем. Каждый отвечает за свою зону. **Reflexion после крупной фичи обязательна** — единственная обязательная проверка качества.
-
-В чужой модуль — через GitHub-issue с assignee на owner'а. Общая зона (`backend/app/shared/`, `frontend/components/ui/`, `tailwind.config.ts`) защищается **качеством init-документации**, а не процессом: на Foundation-фазе зоны/контракты/API зафиксированы, и все им следуют. Если кто-то нарушит — не катастрофа, поправим вместе.
-
----
-
-## 4. Auto-pilot режим
-
-Человек не пишет git/gh — только короткие фразы:
-
-| Скажи Claude | Что произойдёт |
+| Плагин | Когда сработает |
 |---|---|
-| `что у нас?` | `gsd-progress` — ветка, PR'ы, текущая фаза |
-| `продолжаем` | следующая задача из текущей фазы (через GSD или TDD напрямую) |
-| `отдавай` | `git push` → `gh pr create` → `gh pr merge --auto --squash` |
-| `стоп` | прервёт действие |
-| `откати последний` | `git revert HEAD`; для отката фазы — `gsd-undo` |
-| `запроси у X Y` | создаст GitHub-issue с assignee на коллегу |
+| **superpowers** | Дисциплина одной задачи: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion. Это «то, что Claude делает руками». |
+| **gsd** | Опционально. Многофазные проекты с артефактами в `.planning/` (PROJECT.md, фазы, plan, verification). Если делаешь что-то крупнее одного PR — берёшь GSD. См. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md). |
+| **claude-mem** | Память между сессиями. «Это уже решали?» → `mem-search`. Защищает от повторения тех же ошибок. |
+| **context7** | Свежие доки библиотек (FastAPI, Next.js, Tailwind…). Используется, когда упёрся в баг библиотеки — вместо галлюцинаций по памяти. |
+| **context-mode** | Перехватывает большие выводы команд (`ctx_batch_execute`, `ctx_execute`). Защищает контекстное окно от тысячестрочных логов. |
+| **frontend-design** | Дизайн-система и UI-компоненты с осмысленной эстетикой. Не «AI-generic» бутстраповщина. |
+| **reflexion** | Мульти-перспективная критика после крупной фичи — ловит то, что верификация пропустила. |
+| **github** | `gh` операции из чата (PR, issues, branches). |
+| **supabase** | MCP для managed Postgres + Auth — если выбираешь Supabase как БД на старте. |
+| **vercel:*** | Vercel-семейство скиллов (AI SDK, deploy, env, next-upgrade, shadcn, …). Активируются автоматически если в проекте есть Next.js на Vercel. |
 
-См. `CLAUDE.md §9`.
-
----
-
-## 5. Что внутри шаблона
-
-```
-.
-├── CLAUDE.md                  # правила работы (~11 секций)
-├── README.md                  # этот файл
-├── .claude-plugins.json       # требуемые плагины
-├── docs/templates/            # шаблоны для init-project.sh (DEVELOPERS, .planning, business-flows, ...)
-├── playbooks/
-│   └── 04-contracts.md        # единственный survived playbook — shared zone и owner/readers модель
-├── reference/                 # FastAPI 3.12 + Next.js 15 + Postgres эталон
-└── scripts/
-    ├── init-project.sh        # распаковка reference + копирование templates
-    └── scaffold-module.sh     # каркас нового модуля
-```
-
-После `./scripts/init-project.sh fastapi`:
-```
-.
-├── backend/, frontend/        # код из reference/
-├── docker-compose*.yml, deploy.sh, .env.example
-├── DEVELOPERS.md              # из docs/templates/
-├── .planning/                 # PROJECT.md, ROADMAP.md, phases/ (для GSD)
-├── docs/                      # business-flows, tech-stack, features, architecture, changelog
-└── .github/workflows/         # из reference/
-```
+Список и описание лежит в `.claude-plugins.json`. Скрипт `./scripts/install-plugins.sh` пройдёт по нему и поставит всё.
 
 ---
 
-## 6. Стек
+## Что в CLAUDE.md (краткий обзор)
 
-`reference/` — один готовый стек: **FastAPI 3.12 + Next.js 15 + PostgreSQL + Docker Compose + GitHub Actions**.
+CLAUDE.md — главный артефакт шаблона. Базируется на [наблюдениях Karpathy](https://x.com/karpathy/status/2015883857489522876) о том, как LLM системно ошибаются:
 
-CLAUDE.md написан стек-нейтрально — правила (Docker, integration-тесты, общая зона) применимы к любому стеку. Если нужен другой — `./scripts/init-project.sh blank` и положи свой стек руками.
+> *«Модели делают неправильные допущения на твой счёт и просто идут с ними. Они не управляют своей confusion, не просят уточнений, не подсвечивают противоречия, не показывают tradeoffs, не пушат обратно когда должны. Они переусложняют код, раздувают абстракции, не чистят мёртвый код».*
+
+Четыре принципа против этого:
+
+1. **Думай до кода** — проговори допущения, предложи варианты, push back.
+2. **Минимум кода** — никаких фич / абстракций / гибкости на будущее. Regex до LLM.
+3. **Хирургические правки** — трогай только то, что должен; не «улучшай» рядом.
+4. **Goal-driven исполнение** — формулируй задачи как success criteria, чтобы цикл крутился сам.
+
+Плюс локальные практики: **UI-набросок до бэка** (§3), Docker, integration-тесты с реальной БД, research-first + stop-rule (три провала → стоп и читать доки), секреты только через `.env`, осознанный `/compact` на breakpoints, conventional commits.
+
+Подробно — [CLAUDE.md](./CLAUDE.md).
+
+---
+
+## Структура шаблона
+
+```
+.
+├── CLAUDE.md                          правила работы Claude Code (Karpathy + локальные практики)
+├── README.md                          этот файл
+├── .claude-plugins.json               список плагинов с описанием
+├── scripts/
+│   └── install-plugins.sh             jq-мерджит enabledPlugins в ~/.claude/settings.json
+└── docs/
+    ├── presentation.md                MARP-презентация о шаблоне
+    ├── system-design-patterns.md      шпаргалка по Alex Xu (Vol. 1)
+    └── gsd-vs-superpowers.md          как сосуществуют два плагина с пересекающейся функциональностью
+```
+
+Шаблон **не пишет код**. После описания идеи Claude сам создаёт:
+- `.planning/` — если ты или Claude выбрали GSD (PROJECT.md, ROADMAP.md, phases/).
+- `docs/superpowers/` — спеки и планы от superpowers.
+- Код в выбранном стеке.
+
+---
+
+## Источники
+
+- [Karpathy: random notes from claude coding (Jan 2026)](https://x.com/karpathy/status/2015883857489522876) — диагноз болезней LLM-кода.
+- [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — четыре принципа в одном CLAUDE.md.
+- [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) — кит-синк референс по Claude Code (агенты, хуки, скиллы).
 
 ---
 

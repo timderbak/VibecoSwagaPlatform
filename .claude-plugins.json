@@ -1,51 +1,56 @@
 {
   "$schema": "https://docs.anthropic.com/claude-code/plugins.json",
-  "description": "Plugins this template defers to. Install before starting work in the repo. See CLAUDE.md §1 for which skill is used at which step.",
+  "description": "Plugins this template defers to. Install once via ./scripts/install-plugins.sh. See README.md for what each plugin does and when it kicks in.",
   "plugins": [
     {
       "name": "superpowers",
       "required": true,
-      "purpose": "brainstorming, writing-plans, executing-plans, TDD, dispatching-parallel-agents, verification-before-completion, systematic-debugging"
+      "purpose": "task-level discipline: brainstorming, writing-plans, executing-plans, test-driven-development, dispatching-parallel-agents, verification-before-completion, systematic-debugging"
     },
     {
       "name": "gsd",
       "required": true,
-      "purpose": "phase lifecycle (gsd-new-project, gsd-new-milestone, gsd-spec-phase, gsd-plan-phase, gsd-execute-phase, gsd-verify-work, gsd-ship)"
+      "purpose": "OPTIONAL by default — used only for multi-phase projects. Provides phase lifecycle: gsd-new-project, gsd-new-milestone, gsd-spec-phase, gsd-plan-phase, gsd-execute-phase, gsd-verify-work, gsd-ship. Installed via npx (not a Claude marketplace plugin)."
     },
     {
       "name": "claude-mem",
       "required": true,
-      "purpose": "memory between sessions (mem-search, make-plan, do)"
+      "purpose": "memory between sessions: mem-search ('did we solve this before?'), make-plan, do"
     },
     {
       "name": "context-mode",
       "required": true,
-      "purpose": "context-window protection — ctx_batch_execute / ctx_execute / ctx_search instead of raw Bash for large outputs"
+      "purpose": "context-window protection: ctx_batch_execute / ctx_execute / ctx_search intercept large Bash outputs (see CLAUDE.md §8)"
     },
     {
       "name": "context7",
       "required": true,
-      "purpose": "up-to-date library docs (CLAUDE.md §5 stop-rule)"
+      "purpose": "fresh library docs (FastAPI, Next.js, Tailwind, etc.) — used when hitting a library bug (CLAUDE.md §6 stop-rule)"
     },
     {
       "name": "reflexion",
       "required": true,
-      "purpose": "critique after large features (CLAUDE.md §8)"
+      "purpose": "multi-perspective critique after a large feature — catches what verification missed (CLAUDE.md §2 table)"
     },
     {
       "name": "github",
       "required": true,
-      "purpose": "git/gh operations from chat (CLAUDE.md §16 auto-pilot)"
+      "purpose": "gh operations from chat: PR, issues, branches"
     },
     {
       "name": "frontend-design",
       "required": true,
-      "purpose": "design-system generation, polished UI components, distinctive frontend code (CLAUDE.md §17 design-zone)"
+      "purpose": "design-system + UI components with intentional aesthetics. Used at the feature design stage for HTML mockups BEFORE coding the backend (CLAUDE.md §3)"
+    },
+    {
+      "name": "supabase",
+      "required": false,
+      "purpose": "MCP for Supabase managed Postgres + Auth — install only if you pick Supabase as the backing store"
     },
     {
       "name": "ui-ux-pro-max",
       "required": false,
-      "purpose": "optional: 67 styles, 96 palettes, 57 font pairings, 25 chart types — for richer UI/UX exploration when frontend-design is not enough"
+      "purpose": "optional: 67 styles, 96 palettes, 57 font pairings, 25 chart types — when frontend-design is not enough"
     }
   ]
 }
