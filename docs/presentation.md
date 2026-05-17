@@ -5,29 +5,68 @@ paginate: true
 backgroundColor: #fff
 color: #1a1a1a
 style: |
-  section {
+  /* Force every slide to a clean light theme — override gaia's lead/invert defaults */
+  section, section.lead, section.invert {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     font-size: 28px;
   }
-  section.lead h1 {
-    font-size: 64px;
-    color: #0EA5E9;
+  h1, h2 { color: #0EA5E9 !important; }
+  h3, h4 { color: #1a1a1a; }
+  section.lead h1 { font-size: 64px; color: #0EA5E9 !important; }
+  section.lead h2 { font-weight: 400; color: #555 !important; }
+  p, li, td, th { color: inherit; }
+
+  /* Inline code in body — light grey block, dark text */
+  code {
+    background: #f3f4f6;
+    color: #1a1a1a !important;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
   }
-  section.lead h2 {
-    font-weight: 400;
-    color: #555;
+  /* Inline code inside headings — softer blue block */
+  h1 code, h2 code, h3 code {
+    background: #e0f2fe;
+    color: #0369a1 !important;
   }
-  h1, h2 { color: #0EA5E9; }
-  code { background: #f3f4f6; color: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
-  h1 code, h2 code, h3 code { background: #e0f2fe; color: #0369a1; }
-  th code, td code { background: #f3f4f6; color: #1a1a1a; }
-  pre code { background: transparent; color: #e5e5e5; padding: 0; font-weight: normal; }
-  pre { background: #1a1a1a; color: #e5e5e5; padding: 16px; border-radius: 8px; font-size: 22px; }
-  blockquote { border-left: 4px solid #0EA5E9; padding-left: 20px; color: #555; font-style: italic; }
-  table { font-size: 22px; }
-  th { background: #0EA5E9; color: white; }
+  /* Inline code inside table cells — neutral grey on white td bg */
+  td code { background: #f3f4f6; color: #1a1a1a !important; }
+  /* Inline code inside the cyan <th> — keep readable: white bg + dark text */
+  th code { background: #ffffff; color: #0369a1 !important; }
+
+  /* Fenced code blocks — dark plate, light text */
+  pre {
+    background: #1a1a1a !important;
+    color: #e5e5e5 !important;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 22px;
+  }
+  pre code {
+    background: transparent !important;
+    color: #e5e5e5 !important;
+    padding: 0;
+    font-weight: normal;
+  }
+
+  blockquote {
+    border-left: 4px solid #0EA5E9;
+    padding-left: 20px;
+    color: #555 !important;
+    font-style: italic;
+  }
+
+  table { font-size: 22px; border-collapse: collapse; }
+  th { background: #0EA5E9 !important; color: #ffffff !important; padding: 8px 12px; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+
+  a { color: #0EA5E9; }
+  strong { font-weight: 700; }
+
   .small { font-size: 20px; }
-  .tiny { font-size: 16px; color: #888; }
+  .tiny { font-size: 16px; color: #888 !important; }
 ---
 
 <!-- _class: lead -->
