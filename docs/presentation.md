@@ -21,6 +21,7 @@ style: |
   code { background: #f3f4f6; color: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
   h1 code, h2 code, h3 code { background: #e0f2fe; color: #0369a1; }
   th code, td code { background: #f3f4f6; color: #1a1a1a; }
+  pre code { background: transparent; color: #e5e5e5; padding: 0; font-weight: normal; }
   pre { background: #1a1a1a; color: #e5e5e5; padding: 16px; border-radius: 8px; font-size: 22px; }
   blockquote { border-left: 4px solid #0EA5E9; padding-left: 20px; color: #555; font-style: italic; }
   table { font-size: 22px; }
