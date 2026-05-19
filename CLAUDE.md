@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Правила работы Claude Code в репозиториях, созданных из этого шаблона. Файл оптимизирован под **соло-вайбкодера**: никакой командной координации, никаких ролей, никаких процессов согласования.
+Правила работы Claude Code в репозиториях, созданных из этого шаблона. Файл оптимизирован под **соло-вайбкодера**.
 
-База — четыре принципа Karpathy против типичных болезней LLM-кода (см. [оригинал](https://x.com/karpathy/status/2015883857489522876) и [интерпретацию](https://github.com/forrestchang/andrej-karpathy-skills)) + локальные практики: Docker, тесты, секреты, контекст, auto-pilot.
+База — четыре принципа Karpathy против типичных болезней LLM-кода (см. [оригинал](https://x.com/karpathy/status/2015883857489522876) и [интерпретацию](https://github.com/forrestchang/andrej-karpathy-skills)) + локальные практики: UI-первичность, Docker, тесты, research-first, секреты, контекст.
 
 > Дисциплина задачи держится на плагине **superpowers** (`brainstorming`, `writing-plans`, `test-driven-development`, `systematic-debugging`, `verification-before-completion`).
 > Для многофазных проектов — опционально **GSD** (`.planning/PROJECT.md`, фазы). См. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md).
@@ -156,7 +156,7 @@ GSD по умолчанию **не запускается автоматичес
 
 **Никогда без явной просьбы пользователя:**
 - `git push --force`, `git reset --hard`, `git checkout .`, `git clean -f`, `git branch -D`.
-- Merge в `main` руками (только через `gh pr merge --auto`).
+- Прямой merge в `main` мимо PR.
 - `--no-verify`, `--no-gpg-sign`.
 - Удаление файлов, которые Claude не создавал в этой сессии.
 - Изменения в `.env`, секретах, CI-конфигах.
