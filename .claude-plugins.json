@@ -43,14 +43,39 @@
       "purpose": "design-system + UI components with intentional aesthetics. Used at the feature design stage for HTML mockups BEFORE coding the backend (CLAUDE.md §3)"
     },
     {
+      "name": "vercel",
+      "required": true,
+      "purpose": "Vercel deploy + AI SDK + Next.js + shadcn skills. Front-end deployment + AI app scaffolding. See CLAUDE.md §10"
+    },
+    {
+      "name": "railway",
+      "required": true,
+      "purpose": "Backend + Postgres in one click. Default PaaS for full-stack MVP (CLAUDE.md §10)"
+    },
+    {
       "name": "supabase",
       "required": false,
-      "purpose": "MCP for Supabase managed Postgres + Auth — install only if you pick Supabase as the backing store"
+      "purpose": "Managed Postgres + Auth + Storage. Install if you pick Supabase as the backing store"
+    },
+    {
+      "name": "neon",
+      "required": false,
+      "purpose": "Serverless Postgres with branching. Great for Vercel + Next.js MVP"
+    },
+    {
+      "name": "prisma",
+      "required": false,
+      "purpose": "ORM + Prisma Postgres. Install if you want a typed DB layer"
+    },
+    {
+      "name": "auth0",
+      "required": false,
+      "purpose": "Managed authentication. Install if you don't use Supabase Auth and need OAuth/SSO"
     },
     {
       "name": "ui-ux-pro-max",
       "required": false,
-      "purpose": "optional: 67 styles, 96 palettes, 57 font pairings, 25 chart types — when frontend-design is not enough"
+      "purpose": "67 styles, 96 palettes, 57 font pairings, 25 chart types — when frontend-design is not enough"
     }
   ]
 }

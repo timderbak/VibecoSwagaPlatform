@@ -43,20 +43,37 @@ claude
 
 ## Какие плагины и зачем
 
+### Воркфлоу (ставятся всегда)
+
 | Плагин | Когда сработает |
 |---|---|
-| **superpowers** | Дисциплина одной задачи: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion. Это «то, что Claude делает руками». |
-| **gsd** | Опционально. Многофазные проекты с артефактами в `.planning/` (PROJECT.md, фазы, plan, verification). Если делаешь что-то крупнее одного PR — берёшь GSD. См. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md). |
-| **claude-mem** | Память между сессиями. «Это уже решали?» → `mem-search`. Защищает от повторения тех же ошибок. |
-| **context7** | Свежие доки библиотек (FastAPI, Next.js, Tailwind…). Используется, когда упёрся в баг библиотеки — вместо галлюцинаций по памяти. |
-| **context-mode** | Перехватывает большие выводы команд (`ctx_batch_execute`, `ctx_execute`). Защищает контекстное окно от тысячестрочных логов. |
-| **frontend-design** | Дизайн-система и UI-компоненты с осмысленной эстетикой. Не «AI-generic» бутстраповщина. |
-| **reflexion** | Мульти-перспективная критика после крупной фичи — ловит то, что верификация пропустила. |
+| **superpowers** | Дисциплина одной задачи: brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion. |
+| **gsd** | Опционально. Многофазные проекты с артефактами в `.planning/`. Если задача крупнее одного PR — берёшь GSD. См. [`docs/gsd-vs-superpowers.md`](docs/gsd-vs-superpowers.md). |
+| **claude-mem** | Память между сессиями: `mem-search` («это уже решали?»). |
+| **context7** | Свежие доки библиотек — когда упёрся в баг библиотеки, вместо галлюцинаций по памяти. |
+| **context-mode** | Перехватывает большие выводы команд (`ctx_batch_execute`). Защищает контекстное окно. |
+| **frontend-design** | Дизайн-система и UI-компоненты с осмысленной эстетикой. Используется в §3 для HTML-мокапов. |
+| **reflexion** | Мульти-перспективная критика после крупной фичи. |
 | **github** | `gh` операции из чата (PR, issues, branches). |
-| **supabase** | MCP для managed Postgres + Auth — если выбираешь Supabase как БД на старте. |
-| **vercel:*** | Vercel-семейство скиллов (AI SDK, deploy, env, next-upgrade, shadcn, …). Активируются автоматически если в проекте есть Next.js на Vercel. |
 
-Список и описание лежит в `.claude-plugins.json`. Скрипт `./scripts/install-plugins.sh` пройдёт по нему и поставит всё.
+### Deploy и БД (ставятся всегда — под рукой при выборе стека)
+
+| Плагин | Когда сработает |
+|---|---|
+| **vercel** | Vercel-семейство: AI SDK, deploy, env, next-upgrade, shadcn, performance. Дефолт для Next.js. |
+| **railway** | Бэк + Postgres в один клик. Дефолт для full-stack MVP. |
+
+### Опциональные — поставь когда реально понадобится
+
+| Плагин | Когда брать |
+|---|---|
+| **supabase** | Если выбрал Supabase (Postgres + Auth) как БД-слой. |
+| **neon** | Если хочешь serverless Postgres с ветками для preview-деплоев. |
+| **prisma** | Если хочешь типизированный ORM поверх Postgres. |
+| **auth0** | Если нужен managed auth (OAuth/SSO) без привязки к Supabase. |
+| **ui-ux-pro-max** | Когда `frontend-design` не хватает — 67 стилей, 96 палитр, 57 пар шрифтов. |
+
+Decision-tree по стекам — в [CLAUDE.md §10](./CLAUDE.md). Полный список и описание — `.claude-plugins.json`. Скрипт `./scripts/install-plugins.sh` ставит все required и печатает команды для optional.
 
 ---
 

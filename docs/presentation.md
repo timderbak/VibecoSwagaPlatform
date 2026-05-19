@@ -208,7 +208,7 @@ LLM-агенты системно ошибаются одинаково. Их **
 
 ---
 
-# Стек плагинов Claude Code
+# Стек плагинов: воркфлоу
 
 | Плагин | Когда сработает |
 |---|---|
@@ -220,6 +220,28 @@ LLM-агенты системно ошибаются одинаково. Их **
 | **frontend-design** | Дизайн-система + HTML-мокапы для §3 |
 | **reflexion** | Мульти-перспективная критика после крупной фичи |
 | **github** | `gh` операции из чата |
+
+---
+
+# Стек плагинов: Deploy и БД
+
+**Always-on (под рукой при выборе стека):**
+
+| Плагин | Зачем |
+|---|---|
+| **vercel** | Vercel deploy + AI SDK + Next.js + shadcn |
+| **railway** | Бэк + Postgres в один клик (full-stack MVP) |
+
+**Opt-in (ставишь когда понадобится):**
+
+| Плагин | Зачем |
+|---|---|
+| **supabase** | Managed Postgres + Auth + Storage |
+| **neon** | Serverless Postgres с ветками |
+| **prisma** | Типизированный ORM поверх Postgres |
+| **auth0** | Managed auth (если не Supabase) |
+
+Decision-tree по стекам — в CLAUDE.md §10.
 
 ---
 

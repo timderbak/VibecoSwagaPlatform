@@ -183,6 +183,29 @@ GSD по умолчанию **не запускается автоматичес
 
 ---
 
+## 10. Deploy и БД
+
+Шаблон стек-нейтрален — выбор за тобой. Шпаргалка для соло-MVP:
+
+| Сценарий | Что брать |
+|---|---|
+| **Next.js / SPA + статика/SSR** | Vercel + Neon (или Supabase, если нужна auth из коробки) |
+| **Бэк в Docker + БД** | Railway (бэк + Postgres в один клик) или Fly.io |
+| **Edge-функции глобально** | Cloudflare Workers + D1 (плагин `cloudflare` ставится отдельно) |
+| **AI-приложение с LLM** | Vercel + AI SDK + Neon. См. `vercel:ai-sdk` skill. |
+| **Локально, полный стек** | `docker compose` с `postgres` / `redis` / `mongo` — пиши свой `docker-compose.yml` |
+| **Только prototyping, без денег** | Vercel free + Neon free tier |
+
+**Принципы:**
+- На MVP бери managed-сервис (Vercel + Neon/Supabase + Railway). Не пиши свой Postgres в Docker и свой auth до подтверждения, что продукт нужен.
+- Когда продукт подтвердился — мигрируй на self-hosted (стоимость окупится).
+- Никаких хардкодов URL/ключей — всё через `.env` (см. §7).
+- Каждый PR деплоится в preview-окружение (Vercel/Railway это умеют сами).
+
+**Плагины:** `vercel` и `railway` — в required (всегда под рукой). `neon`, `supabase`, `prisma`, `auth0` — opt-in: установи через `/plugin install <name>@claude-plugins-official` только когда реально нужны.
+
+---
+
 ## Если правило конфликтует с запросом
 
 Сначала **уточни** у пользователя. Не игнорируй молча. Не «обходи ради скорости». Это прямое следствие §1.1.
